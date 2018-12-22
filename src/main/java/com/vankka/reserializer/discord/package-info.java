@@ -16,6 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * Root package for MCDiscordReserializer.
+ * Discord reserialization package for MCDiscordReserializer.
  */
-package com.vankka.serializer;
+package com.vankka.reserializer.discord;

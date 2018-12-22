@@ -44,7 +44,6 @@ captures/
 *.ipr
 *.iws
 /.idea/*
-!/.idea/codeStyles/
 !/.idea/copyright/
 
 # Keystore files

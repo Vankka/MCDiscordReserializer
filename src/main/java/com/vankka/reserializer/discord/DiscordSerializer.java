@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.vankka.serializer;
+package com.vankka.reserializer.discord;
 
+import com.vankka.reserializer.text.Text;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextDecoration;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -67,7 +68,7 @@ public final class DiscordSerializer {
     }
 
     private List<Text> getTexts(Component component, Text text) {
-        List<Text> output = new ArrayList<>();
+        List<Text> output = new LinkedList<>();
         if (component instanceof TextComponent) {
             text.setContent(((TextComponent) component).content());
         }
@@ -94,60 +95,5 @@ public final class DiscordSerializer {
             output.addAll(getTexts(child, next));
         });
         return output;
-    }
-
-    private class Text {
-        private String content;
-        private boolean bold = false, strikethrough = false, underline = false, italic = false;
-
-        String getContent() {
-            return content;
-        }
-
-        void setContent(String content) {
-            this.content = content;
-        }
-
-        boolean isBold() {
-            return bold;
-        }
-
-        void setBold(boolean bold) {
-            this.bold = bold;
-        }
-
-        boolean isStrikethrough() {
-            return strikethrough;
-        }
-
-        void setStrikethrough(boolean strikethrough) {
-            this.strikethrough = strikethrough;
-        }
-
-        boolean isUnderline() {
-            return underline;
-        }
-
-        void setUnderline(boolean underline) {
-            this.underline = underline;
-        }
-
-        boolean isItalic() {
-            return italic;
-        }
-
-        void setItalic(boolean italic) {
-            this.italic = italic;
-        }
-
-        public Text clone() {
-            Text text = new Text();
-            text.setContent(content);
-            text.setBold(bold);
-            text.setStrikethrough(strikethrough);
-            text.setUnderline(underline);
-            text.setItalic(italic);
-            return text;
-        }
     }
 }
