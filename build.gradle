@@ -1,5 +1,26 @@
+/*
+ * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
+ * Copyright (C) 2018 Vankka
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 plugins {
     id 'java'
+    id 'idea'
+    id 'checkstyle'
+    id 'maven'
 }
 
 group 'com.vankka'
@@ -8,10 +29,75 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
+configurations {
+    deployerJars
+}
+
+javadoc {
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.author()
+    options.encoding = 'UTF-8'
+    options.addBooleanOption('html5', true)
+    options.addBooleanOption('Xdoclint:none', true)
+    failOnError = false
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+checkstyle {
+    configFile = rootProject.file('checkstyle.xml')
+}
+checkstyleMain {
+    source = sourceSets.main.allJava
+}
+checkstyleTest {
+    source = sourceSets.test.allJava
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = project.configurations.deployerJars
+        repository(url: System.env.mavenRepo) {
+            authentication(userName: System.env.mavenRepoUsername, password: System.env.mavenRepoPassword)
+        }
+    }
+    dependsOn check
+}
+
+test {
+    reports {
+        junitXml.enabled = false
+        html.enabled = true
+    }
+    ignoreFailures = true
+    subprojects.each { dependsOn("${it.path}:test") }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8.1'
+    //noinspection UnnecessaryQualifiedReference
+    distributionType = Wrapper.DistributionType.ALL
+}
+
 dependencies {
+    deployerJars "org.apache.maven.wagon:wagon-http:+"
     compile group: 'net.kyori', name: 'text', version: '1.12-1.6.4'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
