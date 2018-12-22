@@ -71,6 +71,8 @@ public final class DiscordSerializer {
         List<Text> output = new LinkedList<>();
         if (component instanceof TextComponent) {
             text.setContent(((TextComponent) component).content());
+        } else {
+            text.setContent("");
         }
         TextDecoration.State bold = component.decoration(TextDecoration.BOLD);
         if (bold != TextDecoration.State.NOT_SET) {

@@ -18,21 +18,31 @@
 
 package com.vankka.reserializer.text;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+/**
+ * Text class, for defining segments of text with formatting rules.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Text {
-    String content;
-    boolean bold;
-    boolean strikethrough;
-    boolean underline;
-    boolean italic;
+    private String content;
+    private boolean bold;
+    private boolean strikethrough;
+    private boolean underline;
+    private boolean italic;
 
+    /**
+     * Explicit constructor for generating Texts with String content.
+     *
+     * @param content
+     *     The content of this text.
+     */
     public Text(final String content) {
         this.content = content;
     }
