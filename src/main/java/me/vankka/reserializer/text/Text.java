@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018 Vankka
+ * Copyright (C) 2019 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+package me.vankka.reserializer.text;
+
+import lombok.*;
+
 /**
- * Discord reserialization package for MCDiscordReserializer.
+ * Text class, for defining segments of text with formatting rules.
  */
-package com.vankka.reserializer.discord;
+@Data
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@EqualsAndHashCode
+public class Text {
+    private String content;
+    private boolean bold;
+    private boolean strikethrough;
+    private boolean underline;
+    private boolean italic;
+
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
+    public Text clone() {
+        return new Text(content, bold, strikethrough, underline, italic);
+    }
+}

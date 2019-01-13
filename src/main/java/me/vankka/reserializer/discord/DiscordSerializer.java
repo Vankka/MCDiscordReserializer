@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018 Vankka
+ * Copyright (C) 2019 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.vankka.reserializer.discord;
+package me.vankka.reserializer.discord;
 
-import com.vankka.reserializer.text.Text;
+import me.vankka.reserializer.text.Text;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextDecoration;
@@ -32,8 +32,14 @@ import java.util.List;
  * @author Vankka
  */
 public final class DiscordSerializer {
+    /**
+     * Serializes TextComponent (from a chat message) to Discord formatting (markdown)
+     *
+     * @param textComponent The text component from a Minecraft chat message
+     * @return Discord markdown formatted String
+     */
     // Serializes TextComponent (from a chat message) to Discord formatting (markdown)
-    private String serialize(TextComponent textComponent) {
+    public static String serialize(TextComponent textComponent) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Text> texts = getTexts(textComponent, new Text());
         for (Text text : texts) {
@@ -67,7 +73,7 @@ public final class DiscordSerializer {
         return stringBuilder.toString();
     }
 
-    private List<Text> getTexts(Component component, Text text) {
+    private static List<Text> getTexts(Component component, Text text) {
         List<Text> output = new LinkedList<>();
         if (component instanceof TextComponent) {
             text.setContent(((TextComponent) component).content());
