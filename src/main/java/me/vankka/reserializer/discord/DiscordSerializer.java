@@ -23,7 +23,6 @@ import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 import net.kyori.text.format.TextDecoration;
 
-import java.beans.ConstructorProperties;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,8 +32,10 @@ import java.util.List;
  * @author Vankka
  */
 public final class DiscordSerializer {
-    private DiscordSerializer() {}
-    
+    private DiscordSerializer() {
+
+    }
+
     /**
      * Serializes TextComponent (from a chat message) to Discord formatting (markdown).
      *
