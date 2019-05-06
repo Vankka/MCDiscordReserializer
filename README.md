@@ -11,18 +11,18 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 
 #### Maven
 ```xml
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 
-	<dependency>
-	    <groupId>com.github.Vankka</groupId>
-	    <artifactId>MCDiscordReserializer</artifactId>
-	    <version>master-SNAPSHOT</version>
-	</dependency>
+<dependency>
+    <groupId>com.github.Vankka</groupId>
+    <artifactId>MCDiscordReserializer</artifactId>
+    <version>master-SNAPSHOT</version>
+</dependency>
 ```
 
 #### Gradle
