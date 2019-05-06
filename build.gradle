@@ -32,6 +32,7 @@ sourceCompatibility = 1.8
 repositories {
     jcenter()
     mavenCentral()
+    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
 }
 
 configurations {
@@ -64,7 +65,7 @@ artifacts {
 
 lombok {
     version = '1.18.4'
-    sha256 = ""
+    sha256 = ''
 }
 
 checkstyle {
@@ -93,7 +94,7 @@ test {
         html.enabled = true
     }
     ignoreFailures = true
-    subprojects.each { dependsOn("${it.path}:test") }
+    subprojects.each { dependsOn(it.path + ':test') }
 }
 
 task wrapper(type: Wrapper) {
@@ -103,7 +104,8 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
-    deployerJars "org.apache.maven.wagon:wagon-http:+"
-    compile group: 'net.kyori', name: 'text', version: '1.12-1.6.4'
+    deployerJars 'org.apache.maven.wagon:wagon-http:+'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'net.kyori', name: 'text-api', version: '2.0.0'
+    compile group: 'me.vankka', name: 'SimpleAST', version: '1.0'
 }

@@ -19,8 +19,8 @@
 package me.vankka.reserializer.discord;
 
 import me.vankka.reserializer.text.Text;
-import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
+import net.kyori.text.*;
+import net.kyori.text.event.ClickEvent;
 import net.kyori.text.format.TextDecoration;
 
 import java.util.LinkedList;
@@ -31,21 +31,33 @@ import java.util.List;
  *
  * @author Vankka
  */
+@SuppressWarnings("unused")
 public final class DiscordSerializer {
     private DiscordSerializer() {
+    }
 
+    /**
+     * Serializes TextComponent (from a chat message) to Discord formatting (markdown) without embed links.
+     * Use {@link DiscordSerializer#serialize(TextComponent, boolean)} to serialize with embed links.
+     *
+     * @param textComponent The text component from a Minecraft chat message
+     * @return Discord markdown formatted String
+     */
+    public static String serialize(final TextComponent textComponent) {
+        return serialize(textComponent, false);
     }
 
     /**
      * Serializes TextComponent (from a chat message) to Discord formatting (markdown).
      *
      * @param textComponent The text component from a Minecraft chat message
+     * @param embedLinks    Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds)
      * @return Discord markdown formatted String
      */
-    // Serializes TextComponent (from a chat message) to Discord formatting (markdown)
-    public static String serialize(TextComponent textComponent) {
+    @SuppressWarnings("WeakerAccess")
+    public static String serialize(final TextComponent textComponent, boolean embedLinks) {
         StringBuilder stringBuilder = new StringBuilder();
-        List<Text> texts = getTexts(textComponent, new Text());
+        List<Text> texts = getTexts(textComponent, new Text(), embedLinks);
         for (Text text : texts) {
             if (text.isBold()) {
                 stringBuilder.append("**");
@@ -77,12 +89,27 @@ public final class DiscordSerializer {
         return stringBuilder.toString();
     }
 
-    private static List<Text> getTexts(Component component, Text text) {
+    private static List<Text> getTexts(final Component component, final Text text, final boolean embedLinks) {
         List<Text> output = new LinkedList<>();
-        if (component instanceof TextComponent) {
-            text.setContent(((TextComponent) component).content());
+        String content;
+        if (component instanceof KeybindComponent) {
+            content = ((KeybindComponent) component).keybind();
+        } else if (component instanceof ScoreComponent) {
+            content = ((ScoreComponent) component).value();
+        } else if (component instanceof SelectorComponent) {
+            content = ((SelectorComponent) component).pattern();
+        } else if (component instanceof TextComponent) {
+            content = ((TextComponent) component).content();
+        } else if (component instanceof TranslatableComponent) {
+            content = ((TranslatableComponent) component).key();
         } else {
-            text.setContent("");
+            content = "";
+        }
+        ClickEvent clickEvent = component.clickEvent();
+        if (embedLinks && clickEvent != null && clickEvent.action() == ClickEvent.Action.OPEN_URL) {
+            text.setContent("[" + content + "](" + clickEvent.value() + ")");
+        } else {
+            text.setContent(content);
         }
         TextDecoration.State bold = component.decoration(TextDecoration.BOLD);
         if (bold != TextDecoration.State.NOT_SET) {
@@ -92,7 +119,7 @@ public final class DiscordSerializer {
         if (italic != TextDecoration.State.NOT_SET) {
             text.setItalic(italic == TextDecoration.State.TRUE);
         }
-        TextDecoration.State underline = component.decoration(TextDecoration.UNDERLINE);
+        TextDecoration.State underline = component.decoration(TextDecoration.UNDERLINED);
         if (underline != TextDecoration.State.NOT_SET) {
             text.setUnderline(underline == TextDecoration.State.TRUE);
         }
@@ -104,7 +131,7 @@ public final class DiscordSerializer {
         component.children().forEach(child -> {
             Text next = text.clone();
             next.setContent("");
-            output.addAll(getTexts(child, next));
+            output.addAll(getTexts(child, next, embedLinks));
         });
         return output;
     }
