@@ -37,10 +37,10 @@ import java.util.List;
  * @author Vankka
  */
 @SuppressWarnings("unused")
-public class MinecraftSerializer {
+public final class MinecraftSerializer {
 
-    private static final Parser<Object, Node<Object>> parser = new Parser<>();
-    private static final List<Rule<Object, Node<Object>>> rules = SimpleMarkdownRules
+    private static final Parser<Object, Node<Object>> PARSER = new Parser<>();
+    private static final List<Rule<Object, Node<Object>>> RULES = SimpleMarkdownRules
             .createSimpleMarkdownRules(true);
 
     private MinecraftSerializer() {
@@ -55,7 +55,7 @@ public class MinecraftSerializer {
     public static TextComponent serialize(final String discordMessage) {
         TextComponent textComponent = TextComponent.of("");
 
-        List<Node<Object>> nodes = parser.parse(discordMessage, rules);
+        List<Node<Object>> nodes = PARSER.parse(discordMessage, RULES);
         for (Node<Object> node : nodes) {
             textComponent = textComponent.append(process(node, new ArrayList<>()));
         }
@@ -86,6 +86,8 @@ public class MinecraftSerializer {
                     break;
                 case BOLD:
                     component = component.decoration(TextDecoration.BOLD, true);
+                    break;
+                default:
                     break;
             }
         }
