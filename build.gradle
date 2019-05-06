@@ -32,7 +32,7 @@ sourceCompatibility = 1.8
 repositories {
     jcenter()
     mavenCentral()
-    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
+    maven { url 'https://jitpack.io' }
 }
 
 javadoc {
@@ -74,15 +74,6 @@ checkstyleTest {
     source = sourceSets.test.allJava
 }
 
-uploadArchives {
-    repositories.mavenDeployer {
-        repository(url: System.env.mavenRepo) {
-            authentication(userName: System.env.mavenRepoUsername, password: System.env.mavenRepoPassword)
-        }
-    }
-    dependsOn check
-}
-
 test {
     reports {
         junitXml.enabled = false
@@ -101,5 +92,5 @@ task wrapper(type: Wrapper) {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'net.kyori', name: 'text-api', version: '2.0.0'
-    compile group: 'me.vankka', name: 'SimpleAST', version: '1.0'
+    compile group: 'com.github.Vankka', name: 'SimpleAST', version: 'master-SNAPSHOT'
 }
