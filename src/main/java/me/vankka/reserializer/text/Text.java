@@ -34,6 +34,20 @@ public class Text {
     private boolean underline;
     private boolean italic;
 
+    /**
+     * Checks if the formatting matches between this and another Text object.
+     *
+     * @param other The other Text object.
+     * @return true if the formatting matches the other Text object.
+     */
+    public boolean formattingMatches(Text other) {
+        return other != null
+                && bold == other.bold
+                && strikethrough == other.strikethrough
+                && underline == other.underline
+                && italic == other.italic;
+    }
+
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Text clone() {

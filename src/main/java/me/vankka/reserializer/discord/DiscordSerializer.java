@@ -57,8 +57,13 @@ public final class DiscordSerializer {
     @SuppressWarnings("WeakerAccess")
     public static String serialize(final TextComponent textComponent, boolean embedLinks) {
         StringBuilder stringBuilder = new StringBuilder();
-        List<Text> texts = getTexts(textComponent, new Text(), embedLinks);
+        List<Text> texts = getTexts(new LinkedList<>(), textComponent, new Text(), embedLinks);
         for (Text text : texts) {
+            String content = text.getContent();
+            if (content.isEmpty()) {
+                // won't work
+                continue;
+            }
             if (text.isBold()) {
                 stringBuilder.append("**");
             }
@@ -71,7 +76,7 @@ public final class DiscordSerializer {
             if (text.isUnderline()) {
                 stringBuilder.append("__");
             }
-            stringBuilder.append(text.getContent());
+            stringBuilder.append(content);
             if (text.isUnderline()) {
                 stringBuilder.append("__");
             }
@@ -86,11 +91,13 @@ public final class DiscordSerializer {
             }
             stringBuilder.append("\u200B"); // zero width space
         }
-        return stringBuilder.toString();
+        int length = stringBuilder.length();
+        return length < 1 ? "" : stringBuilder.substring(0, length - 1);
     }
 
-    private static List<Text> getTexts(final Component component, final Text text, final boolean embedLinks) {
-        List<Text> output = new LinkedList<>();
+    private static List<Text> getTexts(final List<Text> input, final Component component,
+                                       final Text text, final boolean embedLinks) {
+        List<Text> output = new LinkedList<>(input);
         String content;
         if (component instanceof KeybindComponent) {
             content = ((KeybindComponent) component).keybind();
@@ -127,12 +134,20 @@ public final class DiscordSerializer {
         if (strikethrough != TextDecoration.State.NOT_SET) {
             text.setStrikethrough(strikethrough == TextDecoration.State.TRUE);
         }
+        if (!output.isEmpty()) {
+            Text previous = output.get(output.size() - 1);
+            // if the formatting matches (color was different), merge the text objects to reduce length
+            if (text.formattingMatches(previous)) {
+                output.remove(previous);
+                text.setContent(previous.getContent() + text.getContent());
+            }
+        }
         output.add(text);
-        component.children().forEach(child -> {
+        for (Component child : component.children()) {
             Text next = text.clone();
             next.setContent("");
-            output.addAll(getTexts(child, next, embedLinks));
-        });
+            output = getTexts(output, child, next, embedLinks);
+        }
         return output;
     }
 }

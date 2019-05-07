@@ -47,15 +47,27 @@ public final class MinecraftSerializer {
     }
 
     /**
-     * Serializes Discord formatting (markdown) to a Minecraft TextComponent.
+     * Serializes Discord formatting (markdown) to a Minecraft TextComponent without debug logging.
      *
      * @param discordMessage a Discord markdown message
      * @return the Discord message formatted to a Minecraft TextComponent
      */
     public static TextComponent serialize(final String discordMessage) {
+        return serialize(discordMessage, false);
+    }
+
+    /**
+     * Serializes Discord formatting (markdown) to a Minecraft TextComponent.
+     *
+     * @param discordMessage a Discord markdown message
+     * @param debugLogging true to enable debug logging for the SimpleAST parser
+     * @return the Discord message formatted to a Minecraft TextComponent
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static TextComponent serialize(final String discordMessage, boolean debugLogging) {
         TextComponent textComponent = TextComponent.of("");
 
-        List<Node<Object>> nodes = PARSER.parse(discordMessage, RULES);
+        List<Node<Object>> nodes = PARSER.parse(discordMessage, RULES, debugLogging);
         for (Node<Object> node : nodes) {
             textComponent = textComponent.append(process(node, new ArrayList<>()));
         }
