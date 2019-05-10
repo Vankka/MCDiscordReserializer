@@ -36,11 +36,11 @@ import java.util.List;
  *
  * @author Vankka
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class MinecraftSerializer {
 
     private static final Parser<Object, Node<Object>> PARSER = new Parser<>();
-    private static final List<Rule<Object, Node<Object>>> RULES = SimpleMarkdownRules
+    public static final List<Rule<Object, Node<Object>>> RULES = SimpleMarkdownRules
             .createSimpleMarkdownRules(true);
 
     private MinecraftSerializer() {
@@ -60,10 +60,9 @@ public final class MinecraftSerializer {
      * Serializes Discord formatting (markdown) to a Minecraft TextComponent.
      *
      * @param discordMessage a Discord markdown message
-     * @param debugLogging true to enable debug logging for the SimpleAST parser
+     * @param debugLogging   true to enable debug logging for the SimpleAST parser
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    @SuppressWarnings("WeakerAccess")
     public static TextComponent serialize(final String discordMessage, boolean debugLogging) {
         TextComponent textComponent = TextComponent.of("");
 

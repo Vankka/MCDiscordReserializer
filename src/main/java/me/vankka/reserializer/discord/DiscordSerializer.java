@@ -25,15 +25,56 @@ import net.kyori.text.format.TextDecoration;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * DiscordSerializer, for serializing from MC TextComponents to Discord messages.
  *
  * @author Vankka
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class DiscordSerializer {
+
+    private static Function<KeybindComponent, String> KEYBIND_PROVIDER = KeybindComponent::keybind;
+    private static Function<TranslatableComponent, String> TRANSLATION_PROVIDER = TranslatableComponent::key;
+
     private DiscordSerializer() {
+    }
+
+    /**
+     * Returns the keybind provider for this serializer.
+     *
+     * @return keybind provider, a KeybindComponent -> String function
+     */
+    public static Function<KeybindComponent, String> getKeybindProvider() {
+        return KEYBIND_PROVIDER;
+    }
+
+    /**
+     * Sets the keybind provider for this serializer
+     *
+     * @param keybindProvider a KeybindComponent -> String function
+     */
+    public static void setKeybindProvider(Function<KeybindComponent, String> keybindProvider) {
+        KEYBIND_PROVIDER = keybindProvider;
+    }
+
+    /**
+     * Returns the translation provider for this serializer.
+     *
+     * @return keybind provider, a TranslatableComponent -> String function
+     */
+    public static Function<TranslatableComponent, String> getTranslationProvider() {
+        return TRANSLATION_PROVIDER;
+    }
+
+    /**
+     * Sets the translation provider for this serializer
+     *
+     * @param translationProvider a TranslationComponent -> String function
+     */
+    public static void setTranslationProvider(Function<TranslatableComponent, String> translationProvider) {
+        TRANSLATION_PROVIDER = translationProvider;
     }
 
     /**
@@ -48,13 +89,12 @@ public final class DiscordSerializer {
     }
 
     /**
-     * Serializes TextComponent (from a chat message) to Discord formatting (markdown).
+     * Serializes a TextComponent (from a chat message) to Discord formatting (markdown).
      *
      * @param textComponent The text component from a Minecraft chat message
      * @param embedLinks    Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds)
      * @return Discord markdown formatted String
      */
-    @SuppressWarnings("WeakerAccess")
     public static String serialize(final TextComponent textComponent, boolean embedLinks) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Text> texts = getTexts(new LinkedList<>(), textComponent, new Text(), embedLinks);
@@ -64,6 +104,7 @@ public final class DiscordSerializer {
                 // won't work
                 continue;
             }
+
             if (text.isBold()) {
                 stringBuilder.append("**");
             }
@@ -76,7 +117,11 @@ public final class DiscordSerializer {
             if (text.isUnderline()) {
                 stringBuilder.append("__");
             }
-            stringBuilder.append(content);
+
+            stringBuilder.append(content.replace("*", "\\*").replace("~", "\\~")
+                    .replace("_", "\\_").replace("`", "\\`")
+                    .replace("|", "\\|"));
+
             if (text.isUnderline()) {
                 stringBuilder.append("__");
             }
@@ -89,6 +134,7 @@ public final class DiscordSerializer {
             if (text.isBold()) {
                 stringBuilder.append("**");
             }
+
             stringBuilder.append("\u200B"); // zero width space
         }
         int length = stringBuilder.length();
@@ -98,9 +144,10 @@ public final class DiscordSerializer {
     private static List<Text> getTexts(final List<Text> input, final Component component,
                                        final Text text, final boolean embedLinks) {
         List<Text> output = new LinkedList<>(input);
+
         String content;
         if (component instanceof KeybindComponent) {
-            content = ((KeybindComponent) component).keybind();
+            content = KEYBIND_PROVIDER.apply((KeybindComponent) component);
         } else if (component instanceof ScoreComponent) {
             content = ((ScoreComponent) component).value();
         } else if (component instanceof SelectorComponent) {
@@ -108,16 +155,18 @@ public final class DiscordSerializer {
         } else if (component instanceof TextComponent) {
             content = ((TextComponent) component).content();
         } else if (component instanceof TranslatableComponent) {
-            content = ((TranslatableComponent) component).key();
+            content = TRANSLATION_PROVIDER.apply(((TranslatableComponent) component));
         } else {
             content = "";
         }
+
         ClickEvent clickEvent = component.clickEvent();
         if (embedLinks && clickEvent != null && clickEvent.action() == ClickEvent.Action.OPEN_URL) {
             text.setContent("[" + content + "](" + clickEvent.value() + ")");
         } else {
             text.setContent(content);
         }
+
         TextDecoration.State bold = component.decoration(TextDecoration.BOLD);
         if (bold != TextDecoration.State.NOT_SET) {
             text.setBold(bold == TextDecoration.State.TRUE);
@@ -134,6 +183,7 @@ public final class DiscordSerializer {
         if (strikethrough != TextDecoration.State.NOT_SET) {
             text.setStrikethrough(strikethrough == TextDecoration.State.TRUE);
         }
+
         if (!output.isEmpty()) {
             Text previous = output.get(output.size() - 1);
             // if the formatting matches (color was different), merge the text objects to reduce length
@@ -143,11 +193,13 @@ public final class DiscordSerializer {
             }
         }
         output.add(text);
+
         for (Component child : component.children()) {
             Text next = text.clone();
             next.setContent("");
             output = getTexts(output, child, next, embedLinks);
         }
+
         return output;
     }
 }
