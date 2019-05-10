@@ -147,7 +147,7 @@ public final class DiscordSerializer {
 
         String content;
         if (component instanceof KeybindComponent) {
-            content = KEYBIND_PROVIDER.apply((KeybindComponent) component);
+            content = KEYBINDPROVIDER.apply((KeybindComponent) component);
         } else if (component instanceof ScoreComponent) {
             content = ((ScoreComponent) component).value();
         } else if (component instanceof SelectorComponent) {
@@ -155,7 +155,7 @@ public final class DiscordSerializer {
         } else if (component instanceof TextComponent) {
             content = ((TextComponent) component).content();
         } else if (component instanceof TranslatableComponent) {
-            content = TRANSLATION_PROVIDER.apply(((TranslatableComponent) component));
+            content = TRANSLATIONPROVIDER.apply(((TranslatableComponent) component));
         } else {
             content = "";
         }
