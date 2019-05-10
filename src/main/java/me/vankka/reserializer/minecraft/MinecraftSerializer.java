@@ -39,9 +39,12 @@ import java.util.List;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class MinecraftSerializer {
 
-    private static final Parser<Object, Node<Object>> PARSER = new Parser<>();
+    /**
+     * The rules for parsing Strings to {@link Node}s.
+     */
     public static final List<Rule<Object, Node<Object>>> RULES = SimpleMarkdownRules
             .createSimpleMarkdownRules(true);
+    private static final Parser<Object, Node<Object>> PARSER = new Parser<>();
 
     private MinecraftSerializer() {
     }

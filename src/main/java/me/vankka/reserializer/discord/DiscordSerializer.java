@@ -35,8 +35,8 @@ import java.util.function.Function;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class DiscordSerializer {
 
-    private static Function<KeybindComponent, String> KEYBIND_PROVIDER = KeybindComponent::keybind;
-    private static Function<TranslatableComponent, String> TRANSLATION_PROVIDER = TranslatableComponent::key;
+    private static Function<KeybindComponent, String> KEYBINDPROVIDER = KeybindComponent::keybind;
+    private static Function<TranslatableComponent, String> TRANSLATIONPROVIDER = TranslatableComponent::key;
 
     private DiscordSerializer() {
     }
@@ -47,16 +47,16 @@ public final class DiscordSerializer {
      * @return keybind provider, a KeybindComponent -> String function
      */
     public static Function<KeybindComponent, String> getKeybindProvider() {
-        return KEYBIND_PROVIDER;
+        return KEYBINDPROVIDER;
     }
 
     /**
-     * Sets the keybind provider for this serializer
+     * Sets the keybind provider for this serializer.
      *
      * @param keybindProvider a KeybindComponent -> String function
      */
     public static void setKeybindProvider(Function<KeybindComponent, String> keybindProvider) {
-        KEYBIND_PROVIDER = keybindProvider;
+        KEYBINDPROVIDER = keybindProvider;
     }
 
     /**
@@ -65,16 +65,16 @@ public final class DiscordSerializer {
      * @return keybind provider, a TranslatableComponent -> String function
      */
     public static Function<TranslatableComponent, String> getTranslationProvider() {
-        return TRANSLATION_PROVIDER;
+        return TRANSLATIONPROVIDER;
     }
 
     /**
-     * Sets the translation provider for this serializer
+     * Sets the translation provider for this serializer.
      *
      * @param translationProvider a TranslationComponent -> String function
      */
     public static void setTranslationProvider(Function<TranslatableComponent, String> translationProvider) {
-        TRANSLATION_PROVIDER = translationProvider;
+        TRANSLATIONPROVIDER = translationProvider;
     }
 
     /**
