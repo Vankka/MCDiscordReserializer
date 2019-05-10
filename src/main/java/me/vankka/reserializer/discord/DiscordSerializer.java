@@ -35,8 +35,8 @@ import java.util.function.Function;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class DiscordSerializer {
 
-    private static Function<KeybindComponent, String> KEYBINDPROVIDER = KeybindComponent::keybind;
-    private static Function<TranslatableComponent, String> TRANSLATIONPROVIDER = TranslatableComponent::key;
+    private static Function<KeybindComponent, String> keybindProvider = KeybindComponent::keybind;
+    private static Function<TranslatableComponent, String> translationProvider = TranslatableComponent::key;
 
     private DiscordSerializer() {
     }
@@ -47,16 +47,16 @@ public final class DiscordSerializer {
      * @return keybind provider, a KeybindComponent -> String function
      */
     public static Function<KeybindComponent, String> getKeybindProvider() {
-        return KEYBINDPROVIDER;
+        return keybindProvider;
     }
 
     /**
      * Sets the keybind provider for this serializer.
      *
-     * @param keybindProvider a KeybindComponent -> String function
+     * @param provider a KeybindComponent -> String function
      */
-    public static void setKeybindProvider(Function<KeybindComponent, String> keybindProvider) {
-        KEYBINDPROVIDER = keybindProvider;
+    public static void setKeybindProvider(Function<KeybindComponent, String> provider) {
+        keybindProvider = provider;
     }
 
     /**
@@ -65,16 +65,16 @@ public final class DiscordSerializer {
      * @return keybind provider, a TranslatableComponent -> String function
      */
     public static Function<TranslatableComponent, String> getTranslationProvider() {
-        return TRANSLATIONPROVIDER;
+        return translationProvider;
     }
 
     /**
      * Sets the translation provider for this serializer.
      *
-     * @param translationProvider a TranslationComponent -> String function
+     * @param provider a TranslationComponent -> String function
      */
-    public static void setTranslationProvider(Function<TranslatableComponent, String> translationProvider) {
-        TRANSLATIONPROVIDER = translationProvider;
+    public static void setTranslationProvider(Function<TranslatableComponent, String> provider) {
+        translationProvider = provider;
     }
 
     /**
@@ -147,7 +147,7 @@ public final class DiscordSerializer {
 
         String content;
         if (component instanceof KeybindComponent) {
-            content = KEYBINDPROVIDER.apply((KeybindComponent) component);
+            content = keybindProvider.apply((KeybindComponent) component);
         } else if (component instanceof ScoreComponent) {
             content = ((ScoreComponent) component).value();
         } else if (component instanceof SelectorComponent) {
@@ -155,7 +155,7 @@ public final class DiscordSerializer {
         } else if (component instanceof TextComponent) {
             content = ((TextComponent) component).content();
         } else if (component instanceof TranslatableComponent) {
-            content = TRANSLATIONPROVIDER.apply(((TranslatableComponent) component));
+            content = translationProvider.apply(((TranslatableComponent) component));
         } else {
             content = "";
         }
