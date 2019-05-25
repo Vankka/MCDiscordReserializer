@@ -91,6 +91,6 @@ task wrapper(type: Wrapper) {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'net.kyori', name: 'text-api', version: '2.0.0'
+    compile group: 'net.kyori', name: 'text-api', version: '3.0.0'
     compile group: 'com.github.Vankka', name: 'SimpleAST', version: '2ca77b5939'
 }
