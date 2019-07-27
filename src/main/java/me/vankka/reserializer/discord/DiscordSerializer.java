@@ -33,12 +33,46 @@ import java.util.function.Function;
  * @author Vankka
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public final class DiscordSerializer {
+public class DiscordSerializer {
 
-    private static Function<KeybindComponent, String> keybindProvider = KeybindComponent::keybind;
-    private static Function<TranslatableComponent, String> translationProvider = TranslatableComponent::key;
+    /**
+     * Default instance of the DiscordSerializer, incase that's all you need.
+     * Using {@link DiscordSerializer#setKeybindProvider(Function)} and {@link DiscordSerializer#setTranslationProvider(Function)} is not allowed.
+     */
+    public static final DiscordSerializer INSTANCE = new DiscordSerializer() {
+        @Override
+        public void setKeybindProvider(Function<KeybindComponent, String> provider) {
+            throw new UnsupportedOperationException("Cannot modify public instance");
+        }
 
-    private DiscordSerializer() {
+        @Override
+        public void setTranslationProvider(Function<TranslatableComponent, String> provider) {
+            throw new UnsupportedOperationException("Cannot modify public instance");
+        }
+    };
+
+    private Function<KeybindComponent, String> keybindProvider;
+    private Function<TranslatableComponent, String> translationProvider;
+
+    /**
+     * Constructor for creating a serializer, using {@link KeybindComponent#keybind()}
+     * and {@link TranslatableComponent#key()} for translations by default.
+     */
+    public DiscordSerializer() {
+        this.keybindProvider = KeybindComponent::keybind;
+        this.translationProvider = TranslatableComponent::key;
+    }
+
+    /**
+     * Constructor fore creating a serializer with translations provided with arguments.
+     *
+     * @param keybindProvider The keybind provider.
+     * @param translationProvider The translation provider.
+     */
+    public DiscordSerializer(Function<KeybindComponent, String> keybindProvider,
+                             Function<TranslatableComponent, String> translationProvider) {
+        this.keybindProvider = keybindProvider;
+        this.translationProvider = translationProvider;
     }
 
     /**
@@ -46,7 +80,7 @@ public final class DiscordSerializer {
      *
      * @return keybind provider, a KeybindComponent -> String function
      */
-    public static Function<KeybindComponent, String> getKeybindProvider() {
+    public Function<KeybindComponent, String> getKeybindProvider() {
         return keybindProvider;
     }
 
@@ -55,7 +89,7 @@ public final class DiscordSerializer {
      *
      * @param provider a KeybindComponent -> String function
      */
-    public static void setKeybindProvider(Function<KeybindComponent, String> provider) {
+    public void setKeybindProvider(Function<KeybindComponent, String> provider) {
         keybindProvider = provider;
     }
 
@@ -64,7 +98,7 @@ public final class DiscordSerializer {
      *
      * @return keybind provider, a TranslatableComponent -> String function
      */
-    public static Function<TranslatableComponent, String> getTranslationProvider() {
+    public Function<TranslatableComponent, String> getTranslationProvider() {
         return translationProvider;
     }
 
@@ -73,7 +107,7 @@ public final class DiscordSerializer {
      *
      * @param provider a TranslationComponent -> String function
      */
-    public static void setTranslationProvider(Function<TranslatableComponent, String> provider) {
+    public void setTranslationProvider(Function<TranslatableComponent, String> provider) {
         translationProvider = provider;
     }
 
@@ -84,7 +118,7 @@ public final class DiscordSerializer {
      * @param textComponent The text component from a Minecraft chat message
      * @return Discord markdown formatted String
      */
-    public static String serialize(final TextComponent textComponent) {
+    public String serialize(final TextComponent textComponent) {
         return serialize(textComponent, false);
     }
 
@@ -95,7 +129,7 @@ public final class DiscordSerializer {
      * @param embedLinks    Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds)
      * @return Discord markdown formatted String
      */
-    public static String serialize(final TextComponent textComponent, boolean embedLinks) {
+    public String serialize(final TextComponent textComponent, boolean embedLinks) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Text> texts = getTexts(new LinkedList<>(), textComponent, new Text(), embedLinks);
         for (Text text : texts) {
@@ -141,7 +175,7 @@ public final class DiscordSerializer {
         return length < 1 ? "" : stringBuilder.substring(0, length - 1);
     }
 
-    private static List<Text> getTexts(final List<Text> input, final Component component,
+    private List<Text> getTexts(final List<Text> input, final Component component,
                                        final Text text, final boolean embedLinks) {
         List<Text> output = new LinkedList<>(input);
 

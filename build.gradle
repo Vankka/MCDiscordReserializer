@@ -26,14 +26,14 @@ plugins {
 }
 
 group 'com.vankka'
-version '1.0-SNAPSHOT'
+version '2.0.0'
 
 sourceCompatibility = 1.8
 
 repositories {
     jcenter()
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://nexus.scarsz.me/content/groups/public' }
 }
 
 javadoc {
@@ -87,7 +87,7 @@ test {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'net.kyori', name: 'text-api', version: '3.0.0'
-    compile group: 'com.github.Vankka', name: 'SimpleAST', version: '2ca77b5939'
+    compile group: 'me.vankka', name: 'SimpleAST', version: '2.0.0'
 }
 
 jar {

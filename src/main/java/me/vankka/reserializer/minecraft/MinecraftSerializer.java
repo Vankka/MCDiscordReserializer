@@ -37,16 +37,66 @@ import java.util.List;
  * @author Vankka
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public final class MinecraftSerializer {
+public class MinecraftSerializer {
 
     /**
-     * The rules for parsing Strings to {@link Node}s.
+     * Default instance of the MinecraftSerializer, incase that's all you need.
+     * Using {@link MinecraftSerializer#setParser(Parser)} is not allowed.
      */
-    public static final List<Rule<Object, Node<Object>>> RULES = SimpleMarkdownRules
-            .createSimpleMarkdownRules(true);
-    private static final Parser<Object, Node<Object>> PARSER = new Parser<>();
+    public static final MinecraftSerializer INSTANCE = new MinecraftSerializer() {
+        @Override
+        public void setParser(Parser<Object, Node<Object>, Object> parser) {
+            throw new UnsupportedOperationException("Cannot modify public instance");
+        }
+    };
 
-    private MinecraftSerializer() {
+    private Parser<Object, Node<Object>, Object> parser;
+
+    /**
+     * Constructor for creating a serializer with a {@link Parser}
+     * and adds the {@link SimpleMarkdownRules#createSimpleMarkdownRules(boolean)} with the text rule.
+     */
+    public MinecraftSerializer() {
+        this.parser = new Parser<>();
+        parser.addRules(SimpleMarkdownRules.createSimpleMarkdownRules(true));
+    }
+
+    /**
+     * Constructor for creating a serializer with specified arguments (by default).
+     *
+     * @param parser The {@link Parser} used by the serializer
+     */
+    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser) {
+        this.parser = parser;
+    }
+
+    /**
+     * Constructor for creating a serializer with specified arguments (by default).
+     *
+     * @param parser The {@link Parser} used by the serializer
+     * @param rules The rules added to the parser
+     */
+    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, List<Rule<Object, Node<Object>, Object>> rules) {
+        this(parser);
+        parser.addRules(rules);
+    }
+
+    /**
+     * Returns the current parser used by this serializer.
+     *
+     * @return the {@link Parser}
+     */
+    public Parser<Object, Node<Object>, Object> getParser() {
+        return parser;
+    }
+
+    /**
+     * Sets the new parser for this serializer.
+     *
+     * @param parser the new {@link Parser} for this serializer.
+     */
+    public void setParser(Parser<Object, Node<Object>, Object> parser) {
+        this.parser = parser;
     }
 
     /**
@@ -55,7 +105,7 @@ public final class MinecraftSerializer {
      * @param discordMessage a Discord markdown message
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public static TextComponent serialize(final String discordMessage) {
+    public TextComponent serialize(final String discordMessage) {
         return serialize(discordMessage, false);
     }
 
@@ -66,10 +116,10 @@ public final class MinecraftSerializer {
      * @param debugLogging   true to enable debug logging for the SimpleAST parser
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public static TextComponent serialize(final String discordMessage, boolean debugLogging) {
+    public TextComponent serialize(final String discordMessage, boolean debugLogging) {
         TextComponent textComponent = TextComponent.of("");
 
-        List<Node<Object>> nodes = PARSER.parse(discordMessage, RULES, debugLogging);
+        List<Node<Object>> nodes = parser.parse(discordMessage, null, debugLogging);
         for (Node<Object> node : nodes) {
             textComponent = textComponent.append(process(node, new ArrayList<>()));
         }
@@ -77,7 +127,7 @@ public final class MinecraftSerializer {
         return textComponent;
     }
 
-    private static TextComponent process(final Node<Object> node, final List<TextStyle> styles) {
+    private TextComponent process(final Node<Object> node, final List<TextStyle> styles) {
         TextComponent component = TextComponent.of("");
 
         if (node instanceof TextNode) {
