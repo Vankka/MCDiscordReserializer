@@ -13,16 +13,16 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 ```xml
 <repositories>
     <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
+        <id>Scarsz-Nexus</id>
+        <url>https://nexus.scarsz.me/content/groups/public/</url>
     </repository>
 </repositories>
 
 <dependencies>
     <dependency>
-        <groupId>com.github.Vankka</groupId>
+        <groupId>me.vankka</groupId>
         <artifactId>MCDiscordReserializer</artifactId>
-        <version>master-SNAPSHOT</version>
+        <version>2.0.0</version>
     </dependency>
 </dependencies>
 ```
@@ -30,11 +30,11 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 #### Gradle
 ```groovy
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
 }
 
 dependencies {
-    implementation 'com.github.Vankka:MCDiscordReserializer:master-SNAPSHOT'
+    implementation 'me.vankka:MCDiscordReserializer:2.0.0'
 }
 ```
 
