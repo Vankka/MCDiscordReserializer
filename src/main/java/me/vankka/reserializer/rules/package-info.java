@@ -18,4 +18,4 @@
 /**
  * Extra rules for the {@link me.vankka.reserializer.minecraft.MinecraftSerializer}.
  */
-package me.vankka.reserializer.minecraft.rules;
+package me.vankka.reserializer.rules;

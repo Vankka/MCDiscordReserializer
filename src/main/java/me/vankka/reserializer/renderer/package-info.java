@@ -15,12 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-package me.vankka.reserializer.minecraft.rules;
-
 /**
- * Todo.
+ * Rendering interfaces for MCDiscordReserializer.
  */
-public class DiscordMarkdownRules {
-
-}
+package me.vankka.reserializer.renderer;

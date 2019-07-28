@@ -26,7 +26,7 @@ plugins {
 }
 
 group 'com.vankka'
-version '2.0.0'
+version '2.1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
@@ -87,7 +87,7 @@ test {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'net.kyori', name: 'text-api', version: '3.0.0'
-    compile group: 'me.vankka', name: 'SimpleAST', version: '2.0.0'
+    compile group: 'me.vankka', name: 'SimpleAST', version: '2.0.3'
 }
 
 jar {

@@ -1,7 +1,7 @@
 # MCDiscordReserializer [![Build Status](https://travis-ci.org/Vankka/MCDiscordReserializer.svg?branch=master)](https://travis-ci.org/Vankka/MCDiscordReserializer)
 A library for transcoding between Minecraft and Discord.
 
-Minecraft text is represented using [Kyori's text](https://github.com/KyoriPowered/text) (compatible with 2.x.x and 3.x.x).
+Minecraft text is represented using [Kyori's text](https://github.com/KyoriPowered/text) (compatible with 3.x.x).
 
 Discord text is represented using Java Strings (not relying on any specific Discord library) 
 and is translated using a fork of [Discord's SimpleAST](https://github.com/discordapp/SimpleAST), 
