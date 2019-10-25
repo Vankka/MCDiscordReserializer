@@ -29,7 +29,7 @@ public interface SnowflakeRenderer {
      * Renders a emote mention into a Minecraft {@link Component}.
      *
      * @param name The name of the emote
-     * @param id The id of the emote
+     * @param id   The id of the emote
      * @return The {@link Component}
      */
     Component renderEmoteMention(String name, String id);

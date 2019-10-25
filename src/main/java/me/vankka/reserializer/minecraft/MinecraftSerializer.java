@@ -87,9 +87,9 @@ public class MinecraftSerializer {
     /**
      * Constructor for creating a serializer with specified arguments (by default).
      *
-     * @param parser The {@link Parser} for this serializer
+     * @param parser            The {@link Parser} for this serializer
      * @param snowflakeRenderer The {@link SnowflakeRenderer} for this serializer
-     * @param rules Rules for the parser
+     * @param rules             Rules for the parser
      */
     public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, SnowflakeRenderer snowflakeRenderer, List<Rule<Object, Node<Object>, Object>> rules) {
         this(parser, snowflakeRenderer);

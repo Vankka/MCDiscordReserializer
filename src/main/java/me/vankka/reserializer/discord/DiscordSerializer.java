@@ -66,7 +66,7 @@ public class DiscordSerializer {
     /**
      * Constructor fore creating a serializer with translations provided with arguments.
      *
-     * @param keybindProvider The keybind provider.
+     * @param keybindProvider     The keybind provider.
      * @param translationProvider The translation provider.
      */
     public DiscordSerializer(Function<KeybindComponent, String> keybindProvider,
@@ -152,9 +152,11 @@ public class DiscordSerializer {
                 stringBuilder.append("__");
             }
 
-            stringBuilder.append(content.replace("*", "\\*").replace("~", "\\~")
-                    .replace("_", "\\_").replace("`", "\\`")
-                    .replace("|", "\\|"));
+            stringBuilder.append(content.replace("(?<!\\\\)(?:\\\\\\\\)*\\*", "\\*")
+                    .replace("(?<!\\\\)(?:\\\\\\\\)*~", "\\~")
+                    .replace("(?<!\\\\)(?:\\\\\\\\)*_", "\\_")
+                    .replace("(?<!\\\\)(?:\\\\\\\\)*`", "\\`")
+                    .replace("(?<!\\\\)(?:\\\\\\\\)*\\|", "\\|"));
 
             if (text.isUnderline()) {
                 stringBuilder.append("__");
@@ -176,7 +178,7 @@ public class DiscordSerializer {
     }
 
     private List<Text> getTexts(final List<Text> input, final Component component,
-                                       final Text text, final boolean embedLinks) {
+                                final Text text, final boolean embedLinks) {
         List<Text> output = new LinkedList<>(input);
 
         String content;
