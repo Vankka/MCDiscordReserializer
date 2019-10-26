@@ -1,4 +1,4 @@
-# MCDiscordReserializer [![Build Status](https://travis-ci.org/Vankka/MCDiscordReserializer.svg?branch=master)](https://travis-ci.org/Vankka/MCDiscordReserializer)
+# MCDiscordReserializer ![Build](https://github.com/Vankka/MCDiscordReserializer/workflows/Build/badge.svg) ![Deploy](https://github.com/Vankka/MCDiscordReserializer/workflows/Deploy/badge.svg)
 A library for transcoding between Minecraft and Discord.
 
 Minecraft text is represented using [Kyori's text](https://github.com/KyoriPowered/text) (compatible with 3.x.x).
