@@ -12,4 +12,4 @@ jobs:
       - name: Deploy to GitHub Package Registry with Gradle
         run: ./gradlew publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

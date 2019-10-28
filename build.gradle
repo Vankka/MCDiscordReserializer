@@ -107,7 +107,7 @@ publishing {
             url = uri("https://maven.pkg.github.com/Vankka/MCDiscordReserializer")
             credentials {
                 username = "Vankka"
-                password = System.getenv("GITHUB_TOKEN")
+                password = System.getenv("github_token")
             }
         }
     }
