@@ -11,10 +11,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Make gradlew executable
+        run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build
       - name: Upload artifacts
         uses: actions/upload-artifact@master
         with:
-          name: MCDiscordReserializer-build-artifacts
+          name: build-artifacts
           path: build/libs

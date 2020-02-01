@@ -22,19 +22,18 @@ plugins {
     id 'java'
     id 'idea'
     id 'checkstyle'
-    id 'maven'
     id 'maven-publish'
 }
 
-group 'com.vankka'
+group 'dev.vankka'
 version '2.1.0'
 
 sourceCompatibility = 1.8
 
 repositories {
-    jcenter()
     mavenCentral()
-    maven { url 'https://nexus.scarsz.me/content/groups/public' }
+    jcenter()
+    maven { url 'https://nexus.vankka.dev/repository/maven-public/' }
 }
 
 javadoc {
@@ -88,7 +87,7 @@ test {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'net.kyori', name: 'text-api', version: '3.0.0'
-    compile group: 'me.vankka', name: 'SimpleAST', version: '2.0.3'
+    compile group: 'dev.vankka', name: 'SimpleAST', version: '2.0.0'
 }
 
 jar {
@@ -101,19 +100,19 @@ shadowJar {
 }
 
 publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Vankka/MCDiscordReserializer")
-            credentials {
-                username = "Vankka"
-                password = System.getenv("github_token")
-            }
+    publications {
+        maven(MavenPublication) {
+            from components.java
         }
     }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
+
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('NEXUS_USERNAME')
+                password System.getenv('NEXUS_PASSWORD')
+            }
+            url version.endsWith('-SNAPSHOT') ? 'https://nexus.vankka.dev/repository/maven-snapshots/' : 'https://nexus.vankka.dev/repository/maven-releases/'
         }
     }
 }

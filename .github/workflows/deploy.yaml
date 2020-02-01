@@ -1,15 +1,16 @@
 name: Deploy
 
-on:
-  release:
-    types: [published]
+on: push
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: Make gradlew executable
+        run: chmod +x gradlew
       - name: Deploy to GitHub Package Registry with Gradle
         run: ./gradlew publish
         env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}

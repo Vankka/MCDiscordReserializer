@@ -13,14 +13,14 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 ```xml
 <repositories>
     <repository>
-        <id>Scarsz-Nexus</id>
-        <url>https://nexus.scarsz.me/content/groups/public/</url>
+        <id>Vankka-Nexus</id>
+        <url>https://nexus.vankka.dev/repository/maven-public/</url>
     </repository>
 </repositories>
 
 <dependencies>
     <dependency>
-        <groupId>me.vankka</groupId>
+        <groupId>dev.vankka</groupId>
         <artifactId>MCDiscordReserializer</artifactId>
         <version>2.0.0</version>
     </dependency>
@@ -30,7 +30,10 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 #### Gradle
 ```groovy
 repositories {
-    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
+    maven { 
+      id ''
+      url 'https://nexus.vankka.dev/repository/maven-public/' 
+    }
 }
 
 dependencies {
