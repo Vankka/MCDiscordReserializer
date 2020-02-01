@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Make gradlew executable
         run: chmod +x gradlew
-      - name: Deploy to GitHub Package Registry with Gradle
+      - name: Deploy to Nexus with Gradle
         run: ./gradlew publish
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
