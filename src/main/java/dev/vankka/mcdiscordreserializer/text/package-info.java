@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2019 Vankka
+ * Copyright (C) 2020 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /**
- * Rendering interfaces for MCDiscordReserializer.
+ * Textual units package for MCDiscordReserializer.
  */
-package me.vankka.reserializer.renderer;
+package dev.vankka.mcdiscordreserializer.text;
