@@ -18,13 +18,13 @@
 
 package dev.vankka.mcdiscordreserializer.rules;
 
-import me.vankka.simpleast.core.TextStyle;
-import me.vankka.simpleast.core.node.Node;
-import me.vankka.simpleast.core.node.StyleNode;
-import me.vankka.simpleast.core.parser.ParseSpec;
-import me.vankka.simpleast.core.parser.Parser;
-import me.vankka.simpleast.core.parser.Rule;
-import me.vankka.simpleast.core.simple.SimpleMarkdownRules;
+import dev.vankka.simpleast.core.TextStyle;
+import dev.vankka.simpleast.core.node.Node;
+import dev.vankka.simpleast.core.node.StyleNode;
+import dev.vankka.simpleast.core.parser.ParseSpec;
+import dev.vankka.simpleast.core.parser.Parser;
+import dev.vankka.simpleast.core.parser.Rule;
+import dev.vankka.simpleast.core.simple.SimpleMarkdownRules;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,7 +51,7 @@ public final class DiscordMarkdownRules {
     private static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {
         return new Rule<R, Node<R>, S>(PATTERN_EMOTE_MENTION) {
             @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, ? super Node<R>, S> parser, S state) {
                 Map<String, String> extra = new HashMap<>();
                 extra.put("name", matcher.group(1));
                 extra.put("id", matcher.group(2));
@@ -77,7 +77,7 @@ public final class DiscordMarkdownRules {
     private static <R, S> Rule<R, Node<R>, S> createSpoilerRule() {
         return new Rule<R, Node<R>, S>(PATTERN_SPOILER) {
             @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, ? super Node<R>, S> parser, S state) {
                 Map<String, String> extra = new HashMap<>();
                 extra.put("content", matcher.group(1));
 
@@ -89,7 +89,7 @@ public final class DiscordMarkdownRules {
     private static <R, S> Rule<R, Node<R>, S> createCodeStringRule() {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_STRING) {
             @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, ? super Node<R>, S> parser, S state) {
                 String content = matcher.group();
                 return ParseSpec.createTerminal(StyleNode.Companion.createWithText(content.substring(1, content.length() - 1),
                         new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.CODE_STRING)))), state);
@@ -124,7 +124,7 @@ public final class DiscordMarkdownRules {
     private static <R, S> Rule<R, Node<R>, S> createCodeBlockRule() {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_BLOCK) {
             @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, ? super Node<R>, S> parser, S state) {
                 Map<String, String> extra = new HashMap<>();
                 extra.put("language", matcher.group(1));
 
@@ -137,7 +137,7 @@ public final class DiscordMarkdownRules {
     private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle textStyle) {
         return new Rule<R, Node<R>, S>(pattern) {
             @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, ? super Node<R>, S> parser, S state) {
                 textStyle.getExtra().put("id", matcher.group(1));
 
                 // , matcher.start(1), matcher.end(1)

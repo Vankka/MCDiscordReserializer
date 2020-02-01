@@ -21,12 +21,12 @@ package dev.vankka.mcdiscordreserializer.minecraft;
 import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.mcdiscordreserializer.renderer.SnowflakeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultSnowflakeRenderer;
-import me.vankka.simpleast.core.TextStyle;
-import me.vankka.simpleast.core.node.Node;
-import me.vankka.simpleast.core.node.StyleNode;
-import me.vankka.simpleast.core.node.TextNode;
-import me.vankka.simpleast.core.parser.Parser;
-import me.vankka.simpleast.core.parser.Rule;
+import dev.vankka.simpleast.core.TextStyle;
+import dev.vankka.simpleast.core.node.Node;
+import dev.vankka.simpleast.core.node.StyleNode;
+import dev.vankka.simpleast.core.node.TextNode;
+import dev.vankka.simpleast.core.parser.Parser;
+import dev.vankka.simpleast.core.parser.Rule;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 import net.kyori.text.event.HoverEvent;
@@ -48,7 +48,7 @@ public class MinecraftSerializer {
      * Default instance of the MinecraftSerializer, incase that's all you need.
      * Using {@link MinecraftSerializer#setParser(Parser)} is not allowed.
      */
-    public static final MinecraftSerializer INSTANCE = new MinecraftSerializer() {
+    public static final MinecraftSerializer INSTANCE = new MinecraftSerializer(false) {
         @Override
         public void setParser(Parser<Object, Node<Object>, Object> parser) {
             throw new UnsupportedOperationException("Cannot modify public instance");
@@ -68,8 +68,8 @@ public class MinecraftSerializer {
      * and adds the {@link DiscordMarkdownRules#createAllRulesForDiscord(boolean)} with the text rule.
      * Uses {@link DefaultSnowflakeRenderer} for rendering snowflakes.
      */
-    public MinecraftSerializer() {
-        this.parser = new Parser<>();
+    public MinecraftSerializer(boolean debugging) {
+        this.parser = new Parser<>(debugging);
         this.snowflakeRenderer = new DefaultSnowflakeRenderer();
         parser.addRules(DiscordMarkdownRules.createAllRulesForDiscord(true));
     }
@@ -152,7 +152,7 @@ public class MinecraftSerializer {
     public TextComponent serialize(final String discordMessage, boolean debugLogging) {
         List<Component> components = new ArrayList<>();
 
-        List<Node<Object>> nodes = parser.parse(discordMessage, null, debugLogging);
+        List<Node<Object>> nodes = parser.parse(discordMessage, null);
         for (Node<Object> node : nodes) {
             components.add(process(node, TextComponent.empty()));
         }
@@ -187,7 +187,7 @@ public class MinecraftSerializer {
                         break;
                     case SPOILER:
                         TextComponent content = TextComponent.empty();
-                        for (Node<Object> objectNode : parser.parse(style.getExtra().get("content"))) {
+                        for (Node<Object> objectNode : parser.parse(style.getExtra().get("content"), null)) {
                             content = content.append(process(objectNode, component));
                         }
 

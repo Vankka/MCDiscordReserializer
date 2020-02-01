@@ -78,7 +78,7 @@ public class DiscordSerializer {
     /**
      * Returns the keybind provider for this serializer.
      *
-     * @return keybind provider, a KeybindComponent -> String function
+     * @return keybind provider, a KeybindComponent to String function
      */
     public Function<KeybindComponent, String> getKeybindProvider() {
         return keybindProvider;
@@ -87,7 +87,7 @@ public class DiscordSerializer {
     /**
      * Sets the keybind provider for this serializer.
      *
-     * @param provider a KeybindComponent -> String function
+     * @param provider a KeybindComponent to String function
      */
     public void setKeybindProvider(Function<KeybindComponent, String> provider) {
         keybindProvider = provider;
@@ -96,7 +96,7 @@ public class DiscordSerializer {
     /**
      * Returns the translation provider for this serializer.
      *
-     * @return keybind provider, a TranslatableComponent -> String function
+     * @return keybind provider, a TranslatableComponent to String function
      */
     public Function<TranslatableComponent, String> getTranslationProvider() {
         return translationProvider;
@@ -105,7 +105,7 @@ public class DiscordSerializer {
     /**
      * Sets the translation provider for this serializer.
      *
-     * @param provider a TranslationComponent -> String function
+     * @param provider a TranslationComponent to String function
      */
     public void setTranslationProvider(Function<TranslatableComponent, String> provider) {
         translationProvider = provider;
