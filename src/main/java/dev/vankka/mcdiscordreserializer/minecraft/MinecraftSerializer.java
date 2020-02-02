@@ -18,9 +18,9 @@
 
 package dev.vankka.mcdiscordreserializer.minecraft;
 
-import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.mcdiscordreserializer.renderer.SnowflakeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultSnowflakeRenderer;
+import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
@@ -34,6 +34,7 @@ import net.kyori.text.format.TextColor;
 import net.kyori.text.format.TextDecoration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -167,10 +168,9 @@ public class MinecraftSerializer {
                 .mergeColor(textComponent);
 
         if (node instanceof TextNode) {
-            component = component.content(((TextNode) node).getContent());
+            component = component.content(((TextNode<?>) node).getContent());
         } else if (node instanceof StyleNode) {
-            //noinspection unchecked
-            List<TextStyle> styles = new ArrayList<>(((StyleNode) node).getStyles());
+            List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
             for (TextStyle style : styles) {
                 switch (style.getType()) {
                     case STRIKETHROUGH:
@@ -198,7 +198,7 @@ public class MinecraftSerializer {
                     case CODE_STRING:
                     case CODE_BLOCK:
                         component = component.color(TextColor.DARK_GRAY);
-                        styles.remove(style);
+                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
                     case QUOTE:
                         component = component
@@ -222,8 +222,11 @@ public class MinecraftSerializer {
             }
         }
 
-        for (Node<Object> child : node.getChildren()) {
-            component = component.append(process(child, component));
+        Collection<Node<Object>> children = node.getChildren();
+        if (children != null) {
+            for (Node<Object> child : children) {
+                component = component.append(process(child, component));
+            }
         }
 
         return component;
