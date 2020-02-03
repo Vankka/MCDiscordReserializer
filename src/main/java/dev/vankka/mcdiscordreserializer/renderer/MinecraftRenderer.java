@@ -26,14 +26,68 @@ import net.kyori.text.TextComponent;
  */
 public interface MinecraftRenderer {
 
+    /**
+     * Renders the provided {@link Component} as strikethrough.
+     *
+     * @param component the {@link Component}
+     * @return the strikethrough {@link Component}
+     */
     Component strikethrough(Component component);
+
+    /**
+     * Renders the provided {@link Component} as underlined.
+     *
+     * @param component the {@link Component}
+     * @return the underlined {@link Component}
+     */
     Component underline(Component component);
+
+    /**
+     * Renders the provided {@link Component} as italics.
+     *
+     * @param component the {@link Component}
+     * @return the italics {@link Component}
+     */
     Component italics(Component component);
+
+    /**
+     * Renders the provided {@link Component} as bold.
+     *
+     * @param component the {@link Component}
+     * @return the bold {@link Component}
+     */
     Component bold(Component component);
 
+    /**
+     * Renders the provided {@link Component} as a spoiler.
+     *
+     * @param component the {@link Component}
+     * @return the spoiler'ed {@link Component}
+     */
     Component spoiler(Component component, TextComponent content);
+
+    /**
+     * Renders the provided {@link Component} as a code string.
+     *
+     * @param component the {@link Component}
+     * @return the code stringed {@link Component}
+     */
     Component codeString(Component component);
+
+    /**
+     * Renders the provided {@link Component} as a code block.
+     *
+     * @param component the {@link Component}
+     * @return the code blocked {@link Component}
+     */
     Component codeBlock(Component component);
+
+    /**
+     * Renders the provided {@link Component} as a quote.
+     *
+     * @param component the {@link Component}
+     * @return the quoted {@link Component}
+     */
     Component quote(Component component);
 
     /**
