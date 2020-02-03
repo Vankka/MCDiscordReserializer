@@ -19,11 +19,22 @@
 package dev.vankka.mcdiscordreserializer.renderer;
 
 import net.kyori.text.Component;
+import net.kyori.text.TextComponent;
 
 /**
- * Interface for rendering snowflakes (ids) into Minecraft {@link Component}s.
+ * Interface for rendering formatting into Minecraft {@link net.kyori.text.Component}s.
  */
-public interface SnowflakeRenderer {
+public interface MinecraftRenderer {
+
+    Component strikethrough(Component component);
+    Component underline(Component component);
+    Component italics(Component component);
+    Component bold(Component component);
+
+    Component spoiler(Component component, TextComponent content);
+    Component codeString(Component component);
+    Component codeBlock(Component component);
+    Component quote(Component component);
 
     /**
      * Renders a emote mention into a Minecraft {@link Component}.
@@ -32,7 +43,7 @@ public interface SnowflakeRenderer {
      * @param id   The id of the emote
      * @return The {@link Component}
      */
-    Component renderEmoteMention(String name, String id);
+    Component emoteMention(Component component, String name, String id);
 
     /**
      * Renders a channel mention into a Minecraft {@link Component}.
@@ -40,7 +51,7 @@ public interface SnowflakeRenderer {
      * @param id The id of the channel
      * @return The {@link Component}
      */
-    Component renderChannelMention(String id);
+    Component channelMention(Component component, String id);
 
     /**
      * Renders a user mention into a Minecraft {@link Component}.
@@ -48,7 +59,7 @@ public interface SnowflakeRenderer {
      * @param id The id of the user
      * @return The {@link Component}
      */
-    Component renderUserMention(String id);
+    Component userMention(Component component, String id);
 
     /**
      * Renders a role mention into a Minecraft {@link Component}.
@@ -56,5 +67,5 @@ public interface SnowflakeRenderer {
      * @param id The id of the role
      * @return The {@link Component}
      */
-    Component renderRoleMention(String id);
+    Component roleMention(Component component, String id);
 }

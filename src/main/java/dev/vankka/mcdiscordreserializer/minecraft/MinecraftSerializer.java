@@ -18,8 +18,8 @@
 
 package dev.vankka.mcdiscordreserializer.minecraft;
 
-import dev.vankka.mcdiscordreserializer.renderer.SnowflakeRenderer;
-import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultSnowflakeRenderer;
+import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
+import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
@@ -29,9 +29,6 @@ import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
-import net.kyori.text.event.HoverEvent;
-import net.kyori.text.format.TextColor;
-import net.kyori.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,22 +53,22 @@ public class MinecraftSerializer {
         }
 
         @Override
-        public void setSnowflakeRenderer(SnowflakeRenderer snowflakeRenderer) {
+        public void setRenderer(MinecraftRenderer renderer) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
     };
 
     private Parser<Object, Node<Object>, Object> parser;
-    private SnowflakeRenderer snowflakeRenderer;
+    private MinecraftRenderer renderer;
 
     /**
      * Constructor for creating a serializer with a {@link Parser}
      * and adds the {@link DiscordMarkdownRules#createAllRulesForDiscord(boolean)} with the text rule.
-     * Uses {@link DefaultSnowflakeRenderer} for rendering snowflakes.
+     * Uses {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer} for rendering parts of messages.
      */
     public MinecraftSerializer(boolean debugging) {
         this.parser = new Parser<>(debugging);
-        this.snowflakeRenderer = new DefaultSnowflakeRenderer();
+        this.renderer = new DefaultMinecraftRenderer();
         parser.addRules(DiscordMarkdownRules.createAllRulesForDiscord(true));
     }
 
@@ -80,20 +77,20 @@ public class MinecraftSerializer {
      *
      * @param parser The {@link Parser} used by the serializer
      */
-    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, SnowflakeRenderer snowflakeRenderer) {
+    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, MinecraftRenderer renderer) {
         this.parser = parser;
-        this.snowflakeRenderer = snowflakeRenderer;
+        this.renderer = renderer;
     }
 
     /**
      * Constructor for creating a serializer with specified arguments (by default).
      *
      * @param parser            The {@link Parser} for this serializer
-     * @param snowflakeRenderer The {@link SnowflakeRenderer} for this serializer
+     * @param renderer          The {@link MinecraftRenderer} for this serializer
      * @param rules             Rules for the parser
      */
-    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, SnowflakeRenderer snowflakeRenderer, List<Rule<Object, Node<Object>, Object>> rules) {
-        this(parser, snowflakeRenderer);
+    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, MinecraftRenderer renderer, List<Rule<Object, Node<Object>, Object>> rules) {
+        this(parser, renderer);
         parser.addRules(rules);
     }
 
@@ -116,21 +113,21 @@ public class MinecraftSerializer {
     }
 
     /**
-     * Returns the snowflake renderer for this serializer.
+     * Returns the renderer for this serializer.
      *
-     * @return the {@link SnowflakeRenderer}
+     * @return the {@link MinecraftRenderer}
      */
-    public SnowflakeRenderer getSnowflakeRenderer() {
-        return snowflakeRenderer;
+    public MinecraftRenderer getRenderer() {
+        return renderer;
     }
 
     /**
-     * Sets the new snowflake renderer for this serializer.
+     * Sets the new renderer for this serializer.
      *
-     * @param snowflakeRenderer the {@link SnowflakeRenderer}
+     * @param renderer the {@link MinecraftRenderer}
      */
-    public void setSnowflakeRenderer(SnowflakeRenderer snowflakeRenderer) {
-        this.snowflakeRenderer = snowflakeRenderer;
+    public void setRenderer(MinecraftRenderer renderer) {
+        this.renderer = renderer;
     }
 
     /**
@@ -161,29 +158,29 @@ public class MinecraftSerializer {
         return TextComponent.empty().children(components);
     }
 
-    private TextComponent process(final Node<Object> node, TextComponent textComponent) {
-        TextComponent component = TextComponent.empty()
-                .mergeDecorations(textComponent)
-                .mergeEvents(textComponent)
-                .mergeColor(textComponent);
+    private Component process(final Node<Object> node, Component rootComponent) {
+        Component component = TextComponent.empty()
+                .mergeDecorations(rootComponent)
+                .mergeEvents(rootComponent)
+                .mergeColor(rootComponent);
 
         if (node instanceof TextNode) {
-            component = component.content(((TextNode<?>) node).getContent());
+            component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
         } else if (node instanceof StyleNode) {
             List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
             for (TextStyle style : styles) {
                 switch (style.getType()) {
                     case STRIKETHROUGH:
-                        component = component.decoration(TextDecoration.STRIKETHROUGH, true);
+                        component = renderer.strikethrough(component);
                         break;
                     case UNDERLINE:
-                        component = component.decoration(TextDecoration.UNDERLINED, true);
+                        component = renderer.underline(component);
                         break;
                     case ITALICS:
-                        component = component.decoration(TextDecoration.ITALIC, true);
+                        component = renderer.italics(component);
                         break;
                     case BOLD:
-                        component = component.decoration(TextDecoration.BOLD, true);
+                        component = renderer.bold(component);
                         break;
                     case SPOILER:
                         TextComponent content = TextComponent.empty();
@@ -191,30 +188,30 @@ public class MinecraftSerializer {
                             content = content.append(process(objectNode, component));
                         }
 
-                        component = component.append(TextComponent.of(style.getExtra().get("content"))
-                                .decoration(TextDecoration.OBFUSCATED, true).color(TextColor.DARK_GRAY)
-                                .hoverEvent(HoverEvent.showText(content)));
+                        component = renderer.spoiler(component, content);
                         break;
                     case CODE_STRING:
+                        component = renderer.codeString(component);
+                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
+                        break;
                     case CODE_BLOCK:
-                        component = component.color(TextColor.DARK_GRAY);
+                        component = renderer.codeBlock(component);
                         ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
                     case QUOTE:
-                        component = component
-                                .append(TextComponent.of("| ", TextColor.DARK_GRAY, TextDecoration.BOLD));
+                        component = renderer.quote(component);
                         break;
                     case MENTION_EMOJI:
-                        component = component.append(snowflakeRenderer.renderEmoteMention(style.getExtra().get("name"), style.getExtra().get("id")));
+                        component = renderer.emoteMention(component, style.getExtra().get("name"), style.getExtra().get("id"));
                         break;
                     case MENTION_CHANNEL:
-                        component = component.append(snowflakeRenderer.renderChannelMention(style.getExtra().get("id")));
+                        component = renderer.channelMention(component, style.getExtra().get("id"));
                         break;
                     case MENTION_USER:
-                        component = component.append(snowflakeRenderer.renderUserMention(style.getExtra().get("id")));
+                        component = renderer.userMention(component, style.getExtra().get("id"));
                         break;
                     case MENTION_ROLE:
-                        component = component.append(snowflakeRenderer.renderRoleMention(style.getExtra().get("id")));
+                        component = renderer.roleMention(component, style.getExtra().get("id"));
                         break;
                     default:
                         break;
