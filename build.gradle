@@ -95,7 +95,7 @@ jar {
 }
 
 shadowJar {
-    configurations = [project.configurations.compile]
+    configurations = [project.configurations.runtimeClasspath]
     classifier 'shaded'
 }
 
