@@ -111,9 +111,9 @@ public final class DiscordMarkdownRules {
 
             @Override
             public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
-                String content = matcher.group(1);
+                String content = matcher.group(2);
                 if (content == null || content.isEmpty()) {
-                    content = Arrays.stream(matcher.group(2).split("\n"))
+                    content = Arrays.stream(matcher.group(3).split("\n"))
                             .map(String::trim)
                             .map(line -> line.substring(1))
                             .map(String::trim)
