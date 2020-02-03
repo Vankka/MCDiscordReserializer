@@ -199,7 +199,12 @@ public class MinecraftSerializer {
                         ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
                     case QUOTE:
-                        component = renderer.quote(component);
+                        content = TextComponent.empty();
+                        for (Node<Object> objectNode : parser.parse(style.getExtra().get("content"), null)) {
+                            content = content.append(process(objectNode, component));
+                        }
+
+                        component = renderer.quote(component, content);
                         break;
                     case MENTION_EMOJI:
                         component = renderer.emoteMention(component, style.getExtra().get("name"), style.getExtra().get("id"));

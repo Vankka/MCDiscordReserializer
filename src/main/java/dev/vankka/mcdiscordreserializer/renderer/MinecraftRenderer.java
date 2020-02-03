@@ -88,7 +88,7 @@ public interface MinecraftRenderer {
      * @param component the {@link Component}
      * @return the quoted {@link Component}
      */
-    Component quote(Component component);
+    Component quote(Component component, Component content);
 
     /**
      * Renders a emote mention into a Minecraft {@link Component}.
