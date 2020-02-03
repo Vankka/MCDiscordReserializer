@@ -104,7 +104,6 @@ publishing {
         maven(MavenPublication) {
             artifact jar
             artifact shadowJar
-            artifactId 'all'
             artifact sourcesJar
             artifact javadocJar
         }
