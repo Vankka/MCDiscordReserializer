@@ -123,8 +123,7 @@ public final class DiscordMarkdownRules {
                 Map<String, String> extra = new HashMap<>();
                 extra.put("content", content);
 
-                return ParseSpec.createNonterminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra)))),
-                        new QuoteState(true), matcher.start(0) + (content.length() < 2 ? 0 : content.trim().startsWith(">>>") ? 4 : 2), matcher.end(0));
+                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra)))), state);
             }
         };
     }
@@ -204,10 +203,6 @@ public final class DiscordMarkdownRules {
 
         QuoteState(boolean isInQuote) {
             this.isInQuote = isInQuote;
-        }
-
-        public boolean isInQuote() {
-            return isInQuote;
         }
     }
 }
