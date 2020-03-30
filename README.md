@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'me.vankka:MCDiscordReserializer:2.0.0'
+    implementation 'dev.vankka:MCDiscordReserializer:2.0.0'
 }
 ```
 
