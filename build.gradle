@@ -102,6 +102,7 @@ shadowJar {
 publishing {
     publications {
         maven(MavenPublication) {
+            from components.java
             artifact jar
             artifact shadowJar
             artifact sourcesJar
