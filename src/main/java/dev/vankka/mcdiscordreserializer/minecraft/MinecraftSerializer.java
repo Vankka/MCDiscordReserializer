@@ -136,7 +136,7 @@ public class MinecraftSerializer {
      * @param discordMessage a Discord markdown message
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public TextComponent serialize(final String discordMessage) {
+    public Component serialize(final String discordMessage) {
         return serialize(discordMessage, false);
     }
 
@@ -147,7 +147,7 @@ public class MinecraftSerializer {
      * @param debugLogging   true to enable debug logging for the SimpleAST parser
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public TextComponent serialize(final String discordMessage, boolean debugLogging) {
+    public Component serialize(final String discordMessage, boolean debugLogging) {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = parser.parse(discordMessage, null);

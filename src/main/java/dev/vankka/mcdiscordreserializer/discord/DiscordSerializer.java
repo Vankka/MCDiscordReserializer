@@ -113,25 +113,25 @@ public class DiscordSerializer {
 
     /**
      * Serializes TextComponent (from a chat message) to Discord formatting (markdown) without embed links.
-     * Use {@link DiscordSerializer#serialize(TextComponent, boolean)} to serialize with embed links.
+     * Use {@link DiscordSerializer#serialize(Component, boolean)} to serialize with embed links.
      *
-     * @param textComponent The text component from a Minecraft chat message
+     * @param component The text component from a Minecraft chat message
      * @return Discord markdown formatted String
      */
-    public String serialize(final TextComponent textComponent) {
-        return serialize(textComponent, false);
+    public String serialize(final Component component) {
+        return serialize(component, false);
     }
 
     /**
      * Serializes a TextComponent (from a chat message) to Discord formatting (markdown).
      *
-     * @param textComponent The text component from a Minecraft chat message
+     * @param component     The text component from a Minecraft chat message
      * @param embedLinks    Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds)
      * @return Discord markdown formatted String
      */
-    public String serialize(final TextComponent textComponent, boolean embedLinks) {
+    public String serialize(final Component component, boolean embedLinks) {
         StringBuilder stringBuilder = new StringBuilder();
-        List<Text> texts = getTexts(new LinkedList<>(), textComponent, new Text(), embedLinks);
+        List<Text> texts = getTexts(new LinkedList<>(), component, new Text(), embedLinks);
         for (Text text : texts) {
             String content = text.getContent();
             if (content.isEmpty()) {
