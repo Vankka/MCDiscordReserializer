@@ -19,7 +19,6 @@
 package dev.vankka.mcdiscordreserializer.renderer;
 
 import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
 
 /**
  * Interface for rendering formatting into Minecraft {@link net.kyori.text.Component}s.<br/>
