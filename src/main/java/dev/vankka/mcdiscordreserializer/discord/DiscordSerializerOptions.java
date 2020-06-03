@@ -18,10 +18,7 @@
 
 package dev.vankka.mcdiscordreserializer.discord;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.With;
+import lombok.*;
 import net.kyori.text.KeybindComponent;
 import net.kyori.text.TranslatableComponent;
 
@@ -57,10 +54,12 @@ public final class DiscordSerializerOptions {
     /**
      * The translator for {@link KeybindComponent}s.
      */
+    @NonNull
     private final Function<KeybindComponent, String> keybindProvider;
 
     /**
      * The translator for {@link TranslatableComponent}s.
      */
+    @NonNull
     private final Function<TranslatableComponent, String> translationProvider;
 }

@@ -24,10 +24,7 @@ import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.With;
+import lombok.*;
 
 import java.util.List;
 
@@ -53,6 +50,7 @@ public class MinecraftSerializerOptions {
     /**
      * The SimpleAST {@link Parser} to use to generate the abstract syntax tree.
      */
+    @NonNull
     private final Parser<Object, Node<Object>, Object> parser;
 
     /**
@@ -63,6 +61,7 @@ public class MinecraftSerializerOptions {
     /**
      * The {@link MinecraftRenderer} to use to render formatting for Minecraft.
      */
+    @NonNull
     private final MinecraftRenderer renderer;
 
     /**
