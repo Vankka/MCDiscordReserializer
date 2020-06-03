@@ -41,7 +41,7 @@ dependencies {
 }
 ```
 
-## Basic usageHow to use
+## Basic usage
 ```java
 // For Minecraft -> Discord translating
 String output = DiscordSerializer.INSTANCE.serialize(TextComponent.of("Bold").decoration(TextDecoration.BOLD, true));
