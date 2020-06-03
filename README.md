@@ -31,7 +31,7 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 ```groovy
 repositories {
     maven { 
-      id ''
+      id 'Vankka-Nexus'
       url 'https://nexus.vankka.dev/repository/maven-public/' 
     }
 }
@@ -41,11 +41,11 @@ dependencies {
 }
 ```
 
-## How to use
+## Basic usageHow to use
 ```java
 // For Minecraft -> Discord translating
-String output = DiscordSerializer.serialize(TextComponent.of("Bold").decoration(TextDecoration.BOLD, true));
+String output = DiscordSerializer.INSTANCE.serialize(TextComponent.of("Bold").decoration(TextDecoration.BOLD, true));
 
 // For Discord -> Minecraft translating
-TextComponent output = MinecraftSerializer.serialize("**Bold**");
+TextComponent output = MinecraftSerializer.INSTANCE.serialize("**Bold**");
 ```

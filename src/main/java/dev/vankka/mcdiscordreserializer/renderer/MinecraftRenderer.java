@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2020 Vankka
+ * Copyright (C) 2018-2020 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,104 +22,110 @@ import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
 
 /**
- * Interface for rendering formatting into Minecraft {@link net.kyori.text.Component}s.
+ * Interface for rendering formatting into Minecraft {@link net.kyori.text.Component}s.<br/>
  */
 public interface MinecraftRenderer {
 
     /**
      * Renders the provided {@link Component} as strikethrough.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render as strikethrough
      * @return the strikethrough {@link Component}
      */
-    Component strikethrough(Component component);
+    Component strikethrough(Component part);
 
     /**
      * Renders the provided {@link Component} as underlined.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render as underlined
      * @return the underlined {@link Component}
      */
-    Component underline(Component component);
+    Component underline(Component part);
 
     /**
      * Renders the provided {@link Component} as italics.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render as italics
      * @return the italics {@link Component}
      */
-    Component italics(Component component);
+    Component italics(Component part);
 
     /**
      * Renders the provided {@link Component} as bold.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render as bold
      * @return the bold {@link Component}
      */
-    Component bold(Component component);
-
-    /**
-     * Renders the provided {@link Component} as a spoiler.
-     *
-     * @param component the {@link Component}
-     * @return the spoiler'ed {@link Component}
-     */
-    Component spoiler(Component component, TextComponent content);
+    Component bold(Component part);
 
     /**
      * Renders the provided {@link Component} as a code string.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render the code string to
      * @return the code stringed {@link Component}
      */
-    Component codeString(Component component);
+    Component codeString(Component part);
 
     /**
      * Renders the provided {@link Component} as a code block.
      *
-     * @param component the {@link Component}
+     * @param part the {@link Component} to render as a code block
      * @return the code blocked {@link Component}
      */
-    Component codeBlock(Component component);
+    Component codeBlock(Component part);
 
     /**
-     * Renders the provided {@link Component} as a quote.
+     * Renders the spoiler and appends it to the provided {@link Component}.
      *
-     * @param component the {@link Component}
-     * @return the quoted {@link Component}
+     * @param component the {@link Component} to render the spoiler to
+     * @param content   the content of the spoiler
+     * @return the spoiler'ed {@link Component}
      */
-    Component quote(Component component, Component content);
+    Component appendSpoiler(Component component, Component content);
 
     /**
-     * Renders a emote mention into a Minecraft {@link Component}.
+     * Renders the quote and appends it to the provided {@link Component}.
      *
-     * @param name The name of the emote
-     * @param id   The id of the emote
-     * @return The {@link Component}
+     * @param component the {@link Component} to render to
+     * @param content   the content of the quote
+     * @return the {@link Component} with the quote rendered
      */
-    Component emoteMention(Component component, String name, String id);
+    Component appendQuote(Component component, Component content);
 
     /**
-     * Renders a channel mention into a Minecraft {@link Component}.
+     * Renders a emote mention and appends it to the provided {@link Component}.
      *
-     * @param id The id of the channel
-     * @return The {@link Component}
+     * @param component the {@link Component} to render to
+     * @param name      the name of the emote
+     * @param id        the id of the emote
+     * @return the {@link Component} with emote rendered
      */
-    Component channelMention(Component component, String id);
+    Component appendEmoteMention(Component component, String name, String id);
 
     /**
-     * Renders a user mention into a Minecraft {@link Component}.
+     * Renders a channel mention and appends it to the provided {@link Component}.
      *
-     * @param id The id of the user
-     * @return The {@link Component}
+     * @param component the {@link Component} to render to
+     * @param id        the id of the channel
+     * @return the {@link Component} with the channel mention rendered
      */
-    Component userMention(Component component, String id);
+    Component appendChannelMention(Component component, String id);
 
     /**
-     * Renders a role mention into a Minecraft {@link Component}.
+     * Renders a user mention and appends it to the provided {@link Component}.
      *
-     * @param id The id of the role
-     * @return The {@link Component}
+     * @param component the {@link Component} to render to
+     * @param id        the id of the user
+     * @return the {@link Component} with the user mention rendered
      */
-    Component roleMention(Component component, String id);
+    Component appendUserMention(Component component, String id);
+
+    /**
+     * Renders a role mention and appends it to the provided {@link Component}.
+     *
+     * @param component the {@link Component} to render to
+     * @param id        the id of the role
+     * @return the {@link Component} with the role mention rendered
+     */
+    Component appendRoleMention(Component component, String id);
 }

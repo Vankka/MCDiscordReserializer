@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2020 Vankka
+ * Copyright (C) 2018-2020 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public final class DiscordMarkdownRules {
 
     private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
-// quotes fucking suck    private static final Pattern PATTERN_QUOTE = Pattern.compile("^( *>>> +([\\s\\S]*))|^( *>(?!>>) +[^\\n]*(\\n *>(?!>>) +[^\\n]*)*\\n?)", Pattern.MULTILINE);
+//    private static final Pattern PATTERN_QUOTE = Pattern.compile("^( *>>> +([\\s\\S]*))|^( *>(?!>>) +[^\\n]*(\\n *>(?!>>) +[^\\n]*)*\\n?)", Pattern.MULTILINE);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
 
     private static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {

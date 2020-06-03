@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2020 Vankka
+ * Copyright (C) 2018-2020 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,12 +51,6 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
     }
 
     @Override
-    public Component spoiler(Component component, TextComponent content) {
-        return component.append(content.decoration(TextDecoration.OBFUSCATED, true)
-                .color(TextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
-    }
-
-    @Override
     public Component codeString(Component component) {
         return component.color(TextColor.DARK_GRAY);
     }
@@ -67,27 +61,33 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
     }
 
     @Override
-    public Component quote(Component component, Component content) {
+    public Component appendSpoiler(Component component, Component content) {
+        return component.append(content.decoration(TextDecoration.OBFUSCATED, true)
+                .color(TextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
+    }
+
+    @Override
+    public Component appendQuote(Component component, Component content) {
         return component.append(TextComponent.of("| ", TextColor.DARK_GRAY, TextDecoration.BOLD).append(content));
     }
 
     @Override
-    public Component emoteMention(Component component, String name, String id) {
+    public Component appendEmoteMention(Component component, String name, String id) {
         return component.append(TextComponent.of(":" + name + ":"));
     }
 
     @Override
-    public Component channelMention(Component component, String id) {
+    public Component appendChannelMention(Component component, String id) {
         return component.append(TextComponent.of("<#" + id + ">"));
     }
 
     @Override
-    public Component userMention(Component component, String id) {
+    public Component appendUserMention(Component component, String id) {
         return component.append(TextComponent.of("<@" + id + ">"));
     }
 
     @Override
-    public Component roleMention(Component component, String id) {
+    public Component appendRoleMention(Component component, String id) {
         return component.append(TextComponent.of("<@&" + id + ">"));
     }
 }
