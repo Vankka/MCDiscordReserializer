@@ -18,6 +18,7 @@
 
 package dev.vankka.mcdiscordreserializer.renderer;
 
+import lombok.NonNull;
 import net.kyori.text.Component;
 
 /**
@@ -31,7 +32,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render as strikethrough
      * @return the strikethrough {@link Component}
      */
-    Component strikethrough(Component part);
+    @NonNull
+    Component strikethrough(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as underlined.
@@ -39,7 +41,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render as underlined
      * @return the underlined {@link Component}
      */
-    Component underline(Component part);
+    @NonNull
+    Component underline(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as italics.
@@ -47,7 +50,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render as italics
      * @return the italics {@link Component}
      */
-    Component italics(Component part);
+    @NonNull
+    Component italics(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as bold.
@@ -55,7 +59,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render as bold
      * @return the bold {@link Component}
      */
-    Component bold(Component part);
+    @NonNull
+    Component bold(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code string.
@@ -63,7 +68,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render the code string to
      * @return the code stringed {@link Component}
      */
-    Component codeString(Component part);
+    @NonNull
+    Component codeString(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code block.
@@ -71,7 +77,8 @@ public interface MinecraftRenderer {
      * @param part the {@link Component} to render as a code block
      * @return the code blocked {@link Component}
      */
-    Component codeBlock(Component part);
+    @NonNull
+    Component codeBlock(@NonNull Component part);
 
     /**
      * Renders the spoiler and appends it to the provided {@link Component}.
@@ -80,7 +87,8 @@ public interface MinecraftRenderer {
      * @param content   the content of the spoiler
      * @return the spoiler'ed {@link Component}
      */
-    Component appendSpoiler(Component component, Component content);
+    @NonNull
+    Component appendSpoiler(@NonNull Component component, @NonNull Component content);
 
     /**
      * Renders the quote and appends it to the provided {@link Component}.
@@ -89,7 +97,8 @@ public interface MinecraftRenderer {
      * @param content   the content of the quote
      * @return the {@link Component} with the quote rendered
      */
-    Component appendQuote(Component component, Component content);
+    @NonNull
+    Component appendQuote(@NonNull Component component, @NonNull Component content);
 
     /**
      * Renders a emote mention and appends it to the provided {@link Component}.
@@ -99,7 +108,8 @@ public interface MinecraftRenderer {
      * @param id        the id of the emote
      * @return the {@link Component} with emote rendered
      */
-    Component appendEmoteMention(Component component, String name, String id);
+    @NonNull
+    Component appendEmoteMention(@NonNull Component component, @NonNull String name, @NonNull String id);
 
     /**
      * Renders a channel mention and appends it to the provided {@link Component}.
@@ -108,7 +118,8 @@ public interface MinecraftRenderer {
      * @param id        the id of the channel
      * @return the {@link Component} with the channel mention rendered
      */
-    Component appendChannelMention(Component component, String id);
+    @NonNull
+    Component appendChannelMention(@NonNull Component component, @NonNull String id);
 
     /**
      * Renders a user mention and appends it to the provided {@link Component}.
@@ -117,7 +128,8 @@ public interface MinecraftRenderer {
      * @param id        the id of the user
      * @return the {@link Component} with the user mention rendered
      */
-    Component appendUserMention(Component component, String id);
+    @NonNull
+    Component appendUserMention(@NonNull Component component, @NonNull String id);
 
     /**
      * Renders a role mention and appends it to the provided {@link Component}.
@@ -126,5 +138,6 @@ public interface MinecraftRenderer {
      * @param id        the id of the role
      * @return the {@link Component} with the role mention rendered
      */
-    Component appendRoleMention(Component component, String id);
+    @NonNull
+    Component appendRoleMention(@NonNull Component component, @NonNull String id);
 }

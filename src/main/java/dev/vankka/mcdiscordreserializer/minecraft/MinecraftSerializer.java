@@ -28,6 +28,7 @@ import dev.vankka.simpleast.core.node.TextNode;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import net.kyori.text.Component;
 import net.kyori.text.TextComponent;
@@ -96,7 +97,7 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(Parser, List, MinecraftRenderer, boolean)
      */
-    public MinecraftSerializer(MinecraftSerializerOptions defaultOptions) {
+    public MinecraftSerializer(@NonNull MinecraftSerializerOptions defaultOptions) {
         this.defaultOptions = defaultOptions;
     }
 
@@ -120,7 +121,7 @@ public class MinecraftSerializer {
      * @deprecated Use {@link #MinecraftSerializer(MinecraftSerializerOptions)}
      */
     @Deprecated
-    public MinecraftSerializer(Parser<Object, Node<Object>, Object> parser, MinecraftRenderer renderer) {
+    public MinecraftSerializer(@NonNull Parser<Object, Node<Object>, Object> parser, @NonNull MinecraftRenderer renderer) {
         this.parser = parser;
         this.renderer = renderer;
     }
@@ -179,7 +180,7 @@ public class MinecraftSerializer {
      * @deprecated Use {@link #setDefaultOptions(MinecraftSerializerOptions)} {@link MinecraftSerializerOptions#withRenderer(MinecraftRenderer)}
      */
     @Deprecated
-    public void setRenderer(MinecraftRenderer renderer) {
+    public void setRenderer(@NonNull MinecraftRenderer renderer) {
         this.renderer = renderer;
     }
 
@@ -191,7 +192,7 @@ public class MinecraftSerializer {
      * @param discordMessage a Discord markdown message
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public Component serialize(final String discordMessage) {
+    public Component serialize(@NonNull final String discordMessage) {
         MinecraftSerializerOptions options = getDefaultOptions();
         if (parser != null) {
             options.withParser(parser);
@@ -211,7 +212,7 @@ public class MinecraftSerializer {
      * @deprecated Use {@link #serialize(String, MinecraftSerializerOptions)} {@link MinecraftSerializerOptions#withDebuggingEnabled(boolean)}
      */
     @Deprecated
-    public Component serialize(final String discordMessage, boolean debugLogging) {
+    public Component serialize(@NonNull final String discordMessage, boolean debugLogging) {
         MinecraftSerializerOptions options = getDefaultOptions();
         options = options.withDebuggingEnabled(debugLogging);
         if (parser != null) {
@@ -232,7 +233,7 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(Parser, List, MinecraftRenderer, boolean)
      */
-    public Component serialize(final String discordMessage, MinecraftSerializerOptions serializerOptions) {
+    public Component serialize(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions serializerOptions) {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
@@ -243,7 +244,7 @@ public class MinecraftSerializer {
         return TextComponent.empty().children(components);
     }
 
-    private Component addChild(final Node<Object> node, Component rootComponent, MinecraftRenderer renderer) {
+    private Component addChild(@NonNull final Node<Object> node, @NonNull final Component rootComponent, @NonNull final MinecraftRenderer renderer) {
         Component component = TextComponent.empty()
                 .mergeDecorations(rootComponent)
                 .mergeEvents(rootComponent)
