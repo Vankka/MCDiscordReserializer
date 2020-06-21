@@ -80,7 +80,9 @@ public class MinecraftSerializer {
     @Getter
     @Setter
     private MinecraftSerializerOptions defaultOptions;
+    @Deprecated
     private Parser<Object, Node<Object>, Object> parser;
+    @Deprecated
     private MinecraftRenderer renderer;
 
     /**
@@ -238,13 +240,14 @@ public class MinecraftSerializer {
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
         for (Node<Object> node : nodes) {
-            components.add(addChild(node, TextComponent.empty(), serializerOptions.getRenderer()));
+            components.add(addChild(node, TextComponent.empty(), serializerOptions));
         }
 
         return TextComponent.empty().children(components);
     }
 
-    private Component addChild(@NonNull final Node<Object> node, @NonNull final Component rootComponent, @NonNull final MinecraftRenderer renderer) {
+    private Component addChild(@NonNull final Node<Object> node, @NonNull final Component rootComponent,
+                               @NonNull final MinecraftSerializerOptions serializerOptions) {
         Component component = TextComponent.empty()
                 .mergeDecorations(rootComponent)
                 .mergeEvents(rootComponent)
@@ -254,6 +257,7 @@ public class MinecraftSerializer {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
         } else if (node instanceof StyleNode) {
             List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
+            MinecraftRenderer renderer = serializerOptions.getRenderer();
             for (TextStyle style : styles) {
                 switch (style.getType()) {
                     case STRIKETHROUGH:
@@ -278,16 +282,18 @@ public class MinecraftSerializer {
                         break;
                     case QUOTE:
                         TextComponent content = TextComponent.empty();
-                        for (Node<Object> objectNode : parser.parse(style.getExtra().get("content"), null)) {
-                            content = content.append(addChild(objectNode, component, renderer));
+                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
+                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
+                            content = content.append(addChild(objectNode, component, serializerOptions));
                         }
 
                         component = renderer.appendQuote(component, content);
                         break;
                     case SPOILER:
                         content = TextComponent.empty();
-                        for (Node<Object> objectNode : parser.parse(style.getExtra().get("content"), null)) {
-                            content = content.append(addChild(objectNode, component, renderer));
+                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
+                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
+                            content = content.append(addChild(objectNode, component, serializerOptions));
                         }
 
                         component = renderer.appendSpoiler(component, content);
@@ -313,7 +319,7 @@ public class MinecraftSerializer {
         Collection<Node<Object>> children = node.getChildren();
         if (children != null) {
             for (Node<Object> child : children) {
-                component = component.append(addChild(child, component, renderer));
+                component = component.append(addChild(child, component, serializerOptions));
             }
         }
 

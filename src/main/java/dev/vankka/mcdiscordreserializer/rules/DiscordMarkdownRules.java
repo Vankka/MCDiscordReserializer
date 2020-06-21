@@ -45,7 +45,7 @@ public final class DiscordMarkdownRules {
 
     private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
-//    private static final Pattern PATTERN_QUOTE = Pattern.compile("^( *>>> +([\\s\\S]*))|^( *>(?!>>) +[^\\n]*(\\n *>(?!>>) +[^\\n]*)*\\n?)", Pattern.MULTILINE);
+    private static final Pattern PATTERN_QUOTE = Pattern.compile("^ *>([^\\n]+(\\n[^\\n]+)*\\n*)+\\n*");
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
 
     private static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {
@@ -97,35 +97,29 @@ public final class DiscordMarkdownRules {
         };
     }
 
-//    private static <R> Rule<R, Node<R>, Object> createQuoteRule() {
-//        return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
-//            @Override
-//            public Matcher match(CharSequence inspectionSource, String lastCapture, Object state) {
-//                if ((lastCapture == null) || state instanceof QuoteState && ((QuoteState) state).isInQuote) {
-//                    return null;
-//                } else {
-//                    return super.match(inspectionSource, lastCapture, state);
-//                }
-//            }
-//
-//            @Override
-//            public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
-//                String content = matcher.group(2);
-//                if (content == null || content.isEmpty()) {
-//                    content = Arrays.stream(matcher.group(3).split("\n"))
-//                            .map(String::trim)
-//                            .map(line -> line.substring(1))
-//                            .map(String::trim)
-//                            .collect(Collectors.joining("\n"));
-//                }
-//
-//                Map<String, String> extra = new HashMap<>();
-//                extra.put("content", content);
-//
-//                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra)))), state);
-//            }
-//        };
-//    }
+    private static <R> Rule<R, Node<R>, Object> createQuoteRule() {
+        return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
+            @Override
+            public Matcher match(CharSequence inspectionSource, String lastCapture, Object state) {
+                if (state instanceof QuoteState && ((QuoteState) state).isInQuote) {
+                    return null;
+                } else {
+                    return super.match(inspectionSource, lastCapture, state);
+                }
+            }
+
+            @Override
+            public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
+                int groupIndex = matcher.group(1) != null ? 1 : 2;
+                Object newState = state instanceof QuoteState ? ((QuoteState) state).newQuoteState(true) : new QuoteState(true);
+
+                Map<String, String> extra = new HashMap<>();
+                extra.put("content", matcher.group(groupIndex).trim());
+
+                return ParseSpec.createTerminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))), newState);
+            }
+        };
+    }
 
     private static <R, S> Rule<R, Node<R>, S> createCodeBlockRule() {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_BLOCK) {
@@ -167,7 +161,7 @@ public final class DiscordMarkdownRules {
         rules.add(createCodeBlockRule());
         rules.add(createSpoilerRule());
         rules.add(createCodeStringRule());
-//        rules.add(createQuoteRule());
+        rules.add(createQuoteRule());
 
         return rules;
     }
@@ -198,10 +192,15 @@ public final class DiscordMarkdownRules {
     }
 
     private static class QuoteState {
-        private final boolean isInQuote;
+        private boolean isInQuote;
 
         QuoteState(boolean isInQuote) {
             this.isInQuote = isInQuote;
+        }
+
+        public QuoteState newQuoteState(boolean isInQuote) {
+            this.isInQuote = isInQuote;
+            return this;
         }
     }
 }

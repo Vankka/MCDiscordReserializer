@@ -68,7 +68,7 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     @Override
     public Component appendQuote(Component component, Component content) {
-        return component.append(TextComponent.of("| ", TextColor.DARK_GRAY, TextDecoration.BOLD).append(content));
+        return component.append(TextComponent.of("| ", TextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
     }
 
     @Override
