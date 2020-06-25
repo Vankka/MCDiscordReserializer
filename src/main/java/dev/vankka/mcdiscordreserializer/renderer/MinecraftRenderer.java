@@ -19,10 +19,10 @@
 package dev.vankka.mcdiscordreserializer.renderer;
 
 import lombok.NonNull;
-import net.kyori.text.Component;
+import net.kyori.adventure.text.Component;
 
 /**
- * Interface for rendering formatting into Minecraft {@link net.kyori.text.Component}s.<br/>
+ * Interface for rendering formatting into Minecraft {@link net.kyori.adventure.text.Component}s.<br/>
  */
 public interface MinecraftRenderer {
 

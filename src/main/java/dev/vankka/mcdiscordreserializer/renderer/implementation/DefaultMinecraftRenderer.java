@@ -19,11 +19,11 @@
 package dev.vankka.mcdiscordreserializer.renderer.implementation;
 
 import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
-import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
-import net.kyori.text.event.HoverEvent;
-import net.kyori.text.format.TextColor;
-import net.kyori.text.format.TextDecoration;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 /**
  * The default implementation for the {@link MinecraftRenderer}.
@@ -52,23 +52,23 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     @Override
     public Component codeString(Component component) {
-        return component.color(TextColor.DARK_GRAY);
+        return component.color(NamedTextColor.DARK_GRAY);
     }
 
     @Override
     public Component codeBlock(Component component) {
-        return component.color(TextColor.DARK_GRAY);
+        return component.color(NamedTextColor.DARK_GRAY);
     }
 
     @Override
     public Component appendSpoiler(Component component, Component content) {
         return component.append(content.decoration(TextDecoration.OBFUSCATED, true)
-                .color(TextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
+                .color(NamedTextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
     }
 
     @Override
     public Component appendQuote(Component component, Component content) {
-        return component.append(TextComponent.of("| ", TextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
+        return component.append(TextComponent.of("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
     }
 
     @Override

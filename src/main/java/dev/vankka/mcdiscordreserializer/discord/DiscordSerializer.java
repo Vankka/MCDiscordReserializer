@@ -22,9 +22,9 @@ import dev.vankka.mcdiscordreserializer.text.Text;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import net.kyori.text.*;
-import net.kyori.text.event.ClickEvent;
-import net.kyori.text.format.TextDecoration;
+import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.LinkedList;
 import java.util.List;

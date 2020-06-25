@@ -30,8 +30,8 @@ import dev.vankka.simpleast.core.parser.Rule;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import net.kyori.text.Component;
-import net.kyori.text.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -248,10 +248,7 @@ public class MinecraftSerializer {
 
     private Component addChild(@NonNull final Node<Object> node, @NonNull final Component rootComponent,
                                @NonNull final MinecraftSerializerOptions serializerOptions) {
-        Component component = TextComponent.empty()
-                .mergeDecorations(rootComponent)
-                .mergeEvents(rootComponent)
-                .mergeColor(rootComponent);
+        Component component = TextComponent.empty().mergeStyle(rootComponent);
 
         if (node instanceof TextNode) {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());

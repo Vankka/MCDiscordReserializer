@@ -19,8 +19,8 @@
 package dev.vankka.mcdiscordreserializer.discord;
 
 import lombok.*;
-import net.kyori.text.KeybindComponent;
-import net.kyori.text.TranslatableComponent;
+import net.kyori.adventure.text.KeybindComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 
 import java.util.function.Function;
 

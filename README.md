@@ -9,6 +9,12 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 
 ## Dependency information
 
+### Version
+| Text/Adventure Version | MCDiscordReserializer version |
+|----|----|
+| 3.x.x | 3.x.x |
+| 4.x.x | 4.x.x |
+
 #### Maven
 ```xml
 <repositories>
@@ -22,7 +28,7 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
     <dependency>
         <groupId>dev.vankka</groupId>
         <artifactId>MCDiscordReserializer</artifactId>
-        <version>2.0.0</version>
+        <version>3.0.1</version>
     </dependency>
 </dependencies>
 ```
@@ -37,7 +43,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.vankka:MCDiscordReserializer:2.0.0'
+    implementation 'dev.vankka:MCDiscordReserializer:3.0.1'
 }
 ```
 
