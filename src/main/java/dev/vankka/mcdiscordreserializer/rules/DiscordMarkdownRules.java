@@ -45,7 +45,7 @@ public final class DiscordMarkdownRules {
 
     private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
-    private static final Pattern PATTERN_QUOTE = Pattern.compile("^ *>([^\\n]+(\\n[^\\n]+)*\\n*)+\\n*");
+    private static final Pattern PATTERN_QUOTE = Pattern.compile("^ *>([^\\n]+(\\n[^\\n]+)*\\n*)+\\n*", Pattern.UNIX_LINES);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
 
     private static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {
