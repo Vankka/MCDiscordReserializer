@@ -20,7 +20,6 @@ package dev.vankka.mcdiscordreserializer.renderer.implementation;
 
 import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -68,26 +67,26 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     @Override
     public Component appendQuote(Component component, Component content) {
-        return component.append(TextComponent.of("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
+        return component.append(Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
     }
 
     @Override
     public Component appendEmoteMention(Component component, String name, String id) {
-        return component.append(TextComponent.of(":" + name + ":"));
+        return component.append(Component.text(":" + name + ":"));
     }
 
     @Override
     public Component appendChannelMention(Component component, String id) {
-        return component.append(TextComponent.of("<#" + id + ">"));
+        return component.append(Component.text("<#" + id + ">"));
     }
 
     @Override
     public Component appendUserMention(Component component, String id) {
-        return component.append(TextComponent.of("<@" + id + ">"));
+        return component.append(Component.text("<@" + id + ">"));
     }
 
     @Override
     public Component appendRoleMention(Component component, String id) {
-        return component.append(TextComponent.of("<@&" + id + ">"));
+        return component.append(Component.text("<@&" + id + ">"));
     }
 }

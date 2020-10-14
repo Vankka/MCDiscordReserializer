@@ -240,15 +240,15 @@ public class MinecraftSerializer {
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
         for (Node<Object> node : nodes) {
-            components.add(addChild(node, TextComponent.empty(), serializerOptions));
+            components.add(addChild(node, Component.empty(), serializerOptions));
         }
 
-        return TextComponent.empty().children(components);
+        return Component.empty().children(components);
     }
 
     private Component addChild(@NonNull final Node<Object> node, @NonNull final Component rootComponent,
                                @NonNull final MinecraftSerializerOptions serializerOptions) {
-        Component component = TextComponent.empty().mergeStyle(rootComponent);
+        Component component = Component.empty().mergeStyle(rootComponent);
 
         if (node instanceof TextNode) {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
@@ -278,7 +278,7 @@ public class MinecraftSerializer {
                         ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
                     case QUOTE:
-                        TextComponent content = TextComponent.empty();
+                        TextComponent content = Component.empty();
                         for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
                                 null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
                             content = content.append(addChild(objectNode, component, serializerOptions));
@@ -287,7 +287,7 @@ public class MinecraftSerializer {
                         component = renderer.appendQuote(component, content);
                         break;
                     case SPOILER:
-                        content = TextComponent.empty();
+                        content = Component.empty();
                         for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
                                 null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
                             content = content.append(addChild(objectNode, component, serializerOptions));
