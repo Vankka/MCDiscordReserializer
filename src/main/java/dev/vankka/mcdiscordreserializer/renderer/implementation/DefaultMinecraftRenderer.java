@@ -27,7 +27,11 @@ import net.kyori.adventure.text.format.TextDecoration;
 /**
  * The default implementation for the {@link MinecraftRenderer}.
  */
-public class DefaultMinecraftRenderer implements MinecraftRenderer {
+public final class DefaultMinecraftRenderer implements MinecraftRenderer {
+
+    public static final DefaultMinecraftRenderer INSTANCE = new DefaultMinecraftRenderer();
+
+    private DefaultMinecraftRenderer() {}
 
     @Override
     public Component strikethrough(Component component) {

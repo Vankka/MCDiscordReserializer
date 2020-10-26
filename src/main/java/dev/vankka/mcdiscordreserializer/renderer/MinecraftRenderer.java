@@ -18,66 +18,146 @@
 
 package dev.vankka.mcdiscordreserializer.renderer;
 
+import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
+import dev.vankka.simpleast.core.TextStyle;
+import dev.vankka.simpleast.core.node.Node;
+import dev.vankka.simpleast.core.node.StyleNode;
+import dev.vankka.simpleast.core.node.TextNode;
 import lombok.NonNull;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
- * Interface for rendering formatting into Minecraft {@link net.kyori.adventure.text.Component}s.<br/>
+ * Interface for rendering formatting {@link dev.vankka.simpleast.core.node.Node}s into Minecraft
+ * {@link net.kyori.adventure.text.Component}s for standard {@link dev.vankka.simpleast.core.TextStyle}s.
  */
-public interface MinecraftRenderer {
+public interface MinecraftRenderer extends NodeRenderer {
+
+    @Override
+    default Component render(Component component, Node<Object> node, MinecraftSerializerOptions serializerOptions,
+                             Function<Node<Object>, Component> renderWithChildren) {
+        if (node instanceof TextNode) {
+            component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
+        } else if (node instanceof StyleNode) {
+            List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
+            for (TextStyle style : styles) {
+                switch (style.getType()) {
+                    case STRIKETHROUGH:
+                        component = strikethrough(component);
+                        break;
+                    case UNDERLINE:
+                        component = underline(component);
+                        break;
+                    case ITALICS:
+                        component = italics(component);
+                        break;
+                    case BOLD:
+                        component = bold(component);
+                        break;
+                    case CODE_STRING:
+                        component = codeString(component);
+                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
+                        break;
+                    case CODE_BLOCK:
+                        component = codeBlock(component);
+                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
+                        break;
+                    case QUOTE:
+                        TextComponent content = Component.empty();
+                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
+                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
+                            content = content.append(renderWithChildren.apply(objectNode));
+                        }
+
+                        component = appendQuote(component, content);
+                        break;
+                    case SPOILER:
+                        content = Component.empty();
+                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
+                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
+                            content = content.append(renderWithChildren.apply(objectNode));
+                        }
+
+                        component = appendSpoiler(component, content);
+                        break;
+                    case MENTION_EMOJI:
+                        component = appendEmoteMention(component, style.getExtra().get("name"), style.getExtra().get("id"));
+                        break;
+                    case MENTION_CHANNEL:
+                        component = appendChannelMention(component, style.getExtra().get("id"));
+                        break;
+                    case MENTION_USER:
+                        component = appendUserMention(component, style.getExtra().get("id"));
+                        break;
+                    case MENTION_ROLE:
+                        component = appendRoleMention(component, style.getExtra().get("id"));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return component;
+    }
 
     /**
      * Renders the provided {@link Component} as strikethrough.
      *
      * @param part the {@link Component} to render as strikethrough
-     * @return the strikethrough {@link Component}
+     * @return the strikethrough {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component strikethrough(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as underlined.
      *
      * @param part the {@link Component} to render as underlined
-     * @return the underlined {@link Component}
+     * @return the underlined {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component underline(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as italics.
      *
      * @param part the {@link Component} to render as italics
-     * @return the italics {@link Component}
+     * @return the italics {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component italics(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as bold.
      *
      * @param part the {@link Component} to render as bold
-     * @return the bold {@link Component}
+     * @return the bold {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component bold(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code string.
      *
      * @param part the {@link Component} to render the code string to
-     * @return the code stringed {@link Component}
+     * @return the code stringed {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component codeString(@NonNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code block.
      *
      * @param part the {@link Component} to render as a code block
-     * @return the code blocked {@link Component}
+     * @return the code blocked {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component codeBlock(@NonNull Component part);
 
     /**
@@ -85,9 +165,9 @@ public interface MinecraftRenderer {
      *
      * @param component the {@link Component} to render the spoiler to
      * @param content   the content of the spoiler
-     * @return the spoiler'ed {@link Component}
+     * @return the spoiler'ed {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendSpoiler(@NonNull Component component, @NonNull Component content);
 
     /**
@@ -95,9 +175,9 @@ public interface MinecraftRenderer {
      *
      * @param component the {@link Component} to render to
      * @param content   the content of the quote
-     * @return the {@link Component} with the quote rendered
+     * @return the {@link Component} with the quote rendered or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendQuote(@NonNull Component component, @NonNull Component content);
 
     /**
@@ -106,9 +186,9 @@ public interface MinecraftRenderer {
      * @param component the {@link Component} to render to
      * @param name      the name of the emote
      * @param id        the id of the emote
-     * @return the {@link Component} with emote rendered
+     * @return the {@link Component} with emote rendered or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendEmoteMention(@NonNull Component component, @NonNull String name, @NonNull String id);
 
     /**
@@ -116,9 +196,9 @@ public interface MinecraftRenderer {
      *
      * @param component the {@link Component} to render to
      * @param id        the id of the channel
-     * @return the {@link Component} with the channel mention rendered
+     * @return the {@link Component} with the channel mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendChannelMention(@NonNull Component component, @NonNull String id);
 
     /**
@@ -126,9 +206,9 @@ public interface MinecraftRenderer {
      *
      * @param component the {@link Component} to render to
      * @param id        the id of the user
-     * @return the {@link Component} with the user mention rendered
+     * @return the {@link Component} with the user mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendUserMention(@NonNull Component component, @NonNull String id);
 
     /**
@@ -136,8 +216,8 @@ public interface MinecraftRenderer {
      *
      * @param component the {@link Component} to render to
      * @param id        the id of the role
-     * @return the {@link Component} with the role mention rendered
+     * @return the {@link Component} with the role mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
-    @NonNull
+    @Nullable
     Component appendRoleMention(@NonNull Component component, @NonNull String id);
 }
