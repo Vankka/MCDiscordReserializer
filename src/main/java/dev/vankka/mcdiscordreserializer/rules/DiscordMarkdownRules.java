@@ -21,6 +21,7 @@ package dev.vankka.mcdiscordreserializer.rules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
+import dev.vankka.simpleast.core.node.TextNode;
 import dev.vankka.simpleast.core.parser.ParseSpec;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
@@ -47,8 +48,13 @@ public final class DiscordMarkdownRules {
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
 //    private static final Pattern PATTERN_QUOTE = Pattern.compile("^ *>([^\\n]+(\\n[^\\n]+)*\\n*)+\\n*", Pattern.UNIX_LINES);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
+    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("(.*)");
 
-    private static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
+     * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createEmoteMentionRule() {
         return new Rule<R, Node<R>, S>(PATTERN_EMOTE_MENTION) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
@@ -62,19 +68,37 @@ public final class DiscordMarkdownRules {
         };
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createChannelMentionRule() {
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's channel mentions.
+     * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createChannelMentionRule() {
         return createSimpleMentionRule(PATTERN_CHANNEL_MENTION, new TextStyle(TextStyle.Type.MENTION_CHANNEL));
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createUserMentionRule() {
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's user mentions.
+     * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createUserMentionRule() {
         return createSimpleMentionRule(PATTERN_USER_MENTION, new TextStyle(TextStyle.Type.MENTION_USER));
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createRoleMentionRule() {
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's role mentions.
+     * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createRoleMentionRule() {
         return createSimpleMentionRule(PATTERN_ROLE_MENTION, new TextStyle(TextStyle.Type.MENTION_ROLE));
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createSpoilerRule() {
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's spoilers.
+     * <a href="https://support.discord.com/hc/en-us/articles/360022320632-Spoiler-Tags-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createSpoilerRule() {
         return new Rule<R, Node<R>, S>(PATTERN_SPOILER) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
@@ -86,7 +110,11 @@ public final class DiscordMarkdownRules {
         };
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createCodeStringRule() {
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's code strings.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createCodeStringRule() {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_STRING) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
@@ -97,7 +125,19 @@ public final class DiscordMarkdownRules {
         };
     }
 
-//    private static <R> Rule<R, Node<R>, Object> createQuoteRule() {
+    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle textStyle) {
+        return new Rule<R, Node<R>, S>(pattern) {
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                textStyle.getExtra().put("id", matcher.group(1));
+
+                // , matcher.start(1), matcher.end(1)
+                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(textStyle))), state);
+            }
+        };
+    }
+
+//    public static <R> Rule<R, Node<R>, Object> createQuoteRule() {
 //        return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
 //            @Override
 //            public Matcher match(CharSequence inspectionSource, String lastCapture, Object state) {
@@ -121,7 +161,11 @@ public final class DiscordMarkdownRules {
 //        };
 //    }
 
-    private static <R, S> Rule<R, Node<R>, S> createCodeBlockRule() {
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's code blocks.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createCodeBlockRule() {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_BLOCK) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
@@ -134,19 +178,15 @@ public final class DiscordMarkdownRules {
         };
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle textStyle) {
-        return new Rule<R, Node<R>, S>(pattern) {
-            @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                textStyle.getExtra().put("id", matcher.group(1));
-
-                // , matcher.start(1), matcher.end(1)
-                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(textStyle))), state);
-            }
-        };
-    }
-
-    private static <R, S> List<Rule<R, Node<R>, S>> createMentionRules() {
+    /**
+     * Creates all the mention rules.
+     *
+     * @see #createEmoteMentionRule()
+     * @see #createChannelMentionRule()
+     * @see #createUserMentionRule()
+     * @see #createRoleMentionRule()
+     */
+    public static <R, S> List<Rule<R, Node<R>, S>> createMentionRules() {
         List<Rule<R, Node<R>, S>> rules = new ArrayList<>();
         rules.add(createEmoteMentionRule());
         rules.add(createChannelMentionRule());
@@ -156,22 +196,49 @@ public final class DiscordMarkdownRules {
         return rules;
     }
 
-    private static <R> List<Rule<R, Node<R>, Object>> createStyleRules() {
+
+    /**
+     * Creates all the style rules.
+     *
+     * @see #createCodeBlockRule()
+     * @see #createSpoilerRule()
+     * @see #createCodeStringRule()
+     */
+    public static <R> List<Rule<R, Node<R>, Object>> createStyleRules() {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
         rules.add(createCodeBlockRule());
         rules.add(createSpoilerRule());
         rules.add(createCodeStringRule());
-//        rules.add(createQuoteRule());
+//        rules.add(createQuoteRule()); // see: javadoc comment
 
         return rules;
     }
 
-    private static <R> List<Rule<R, Node<R>, Object>> createDiscordMarkdownRules() {
+    /**
+     * Creates all rules for Discord mentions and styles.
+     *
+     * @see #createMentionRules()
+     * @see #createStyleRules()
+     */
+    public static <R> List<Rule<R, Node<R>, Object>> createDiscordMarkdownRules() {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
         rules.addAll(createMentionRules());
         rules.addAll(createStyleRules());
 
         return rules;
+    }
+
+    /**
+     * Creates a text rule that matches all characters, without cutting at special characters like
+     * {@link dev.vankka.simpleast.core.simple.SimpleMarkdownRules#createTextRule()}.
+     */
+    public static <R, S> Rule<R, Node<R>, S> createMatchAllTextRule() {
+        return new Rule<R, Node<R>, S>(PATTERN_MATCH_ALL) {
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                return ParseSpec.createTerminal(new TextNode<>(matcher.group()), state);
+            }
+        };
     }
 
     /**
@@ -185,7 +252,7 @@ public final class DiscordMarkdownRules {
         rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
         rules.addAll(createDiscordMarkdownRules());
         if (includeText) {
-            rules.add(SimpleMarkdownRules.createTextRule());
+            rules.add(createMatchAllTextRule());
         }
 
         return rules;
