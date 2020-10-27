@@ -19,6 +19,7 @@
 package dev.vankka.mcdiscordreserializer.renderer;
 
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
+import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
@@ -70,7 +71,9 @@ public interface MinecraftRenderer extends NodeRenderer {
                     case QUOTE:
                         TextComponent content = Component.empty();
                         for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
-                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
+                                new DiscordMarkdownRules.QuoteState(true),
+                                serializerOptions.getRules(),
+                                serializerOptions.isDebuggingEnabled())) {
                             content = content.append(renderWithChildren.apply(objectNode));
                         }
 

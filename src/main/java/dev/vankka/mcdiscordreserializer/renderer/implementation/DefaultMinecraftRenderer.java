@@ -24,6 +24,8 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import java.util.regex.Pattern;
+
 /**
  * The default implementation for the {@link MinecraftRenderer}.
  */
@@ -33,6 +35,8 @@ public final class DefaultMinecraftRenderer implements MinecraftRenderer {
      * The instance of {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}.
      */
     public static final DefaultMinecraftRenderer INSTANCE = new DefaultMinecraftRenderer();
+
+    private static final Pattern PATTERN_NEWLINE = Pattern.compile("\n");
 
     private DefaultMinecraftRenderer() {
     }
@@ -75,7 +79,8 @@ public final class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     @Override
     public Component appendQuote(Component component, Component content) {
-        return component.append(Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD)).append(content);
+        Component prefix = Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD);
+        return component.append(prefix).append(content.replaceText(PATTERN_NEWLINE, builder -> builder.append(prefix)));
     }
 
     @Override

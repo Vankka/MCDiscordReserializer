@@ -39,16 +39,16 @@ public final class DiscordMarkdownRules {
     private DiscordMarkdownRules() {
     }
 
-    private static final Pattern PATTERN_EMOTE_MENTION = Pattern.compile("^<a?:(\\w+):(\\d+)>$");
-    private static final Pattern PATTERN_CHANNEL_MENTION = Pattern.compile("^<#(\\d+)>$");
-    private static final Pattern PATTERN_USER_MENTION = Pattern.compile("^<@!?(\\d+)>$");
-    private static final Pattern PATTERN_ROLE_MENTION = Pattern.compile("^<@&(\\d+)>$");
+    private static final Pattern PATTERN_EMOTE_MENTION = Pattern.compile("<a?:(\\w+):(\\d+)>");
+    private static final Pattern PATTERN_CHANNEL_MENTION = Pattern.compile("<#(\\d+)>");
+    private static final Pattern PATTERN_USER_MENTION = Pattern.compile("<@!?(\\d+)>");
+    private static final Pattern PATTERN_ROLE_MENTION = Pattern.compile("<@&(\\d+)>");
 
-    private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
-    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
-//    private static final Pattern PATTERN_QUOTE = Pattern.compile("^ *>([^\\n]+(\\n[^\\n]+)*\\n*)+\\n*", Pattern.UNIX_LINES);
-    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
-    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("(.*)");
+    private static final Pattern PATTERN_SPOILER = Pattern.compile("\\|\\|([\\s\\S]+?)\\|\\|");
+    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("`(.+?)`");
+    private static final Pattern PATTERN_QUOTE = Pattern.compile("> (.+(?:\\n> .+)*)", Pattern.MULTILINE);
+    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
+    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("([\\w\\W]+)");
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
@@ -137,29 +137,32 @@ public final class DiscordMarkdownRules {
         };
     }
 
-//    public static <R> Rule<R, Node<R>, Object> createQuoteRule() {
-//        return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
-//            @Override
-//            public Matcher match(CharSequence inspectionSource, String lastCapture, Object state) {
-//                if (state instanceof QuoteState && ((QuoteState) state).isInQuote) {
-//                    return null;
-//                } else {
-//                    return super.match(inspectionSource, lastCapture, state);
-//                }
-//            }
-//
-//            @Override
-//            public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
-//                int groupIndex = matcher.group(1) != null ? 1 : 2;
-//                Object newState = state instanceof QuoteState ? ((QuoteState) state).newQuoteState(true) : new QuoteState(true);
-//
-//                Map<String, String> extra = new HashMap<>();
-//                extra.put("content", matcher.group(groupIndex).trim());
-//
-//                return ParseSpec.createTerminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))), newState);
-//            }
-//        };
-//    }
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's quotes.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R> Rule<R, Node<R>, Object> createQuoteRule() {
+        return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
+            @Override
+            public Matcher match(CharSequence inspectionSource, String lastCapture, Object state) {
+                if (state instanceof QuoteState && ((QuoteState) state).isInQuote) {
+                    return null;
+                } else {
+                    return super.match(inspectionSource, lastCapture, state);
+                }
+            }
+
+            @Override
+            public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
+                Object newState = state instanceof QuoteState ? ((QuoteState) state).newQuoteState(true) : new QuoteState(true);
+
+                Map<String, String> extra = new HashMap<>();
+                extra.put("content", matcher.group(1).trim().replace("\n> ", "\n"));
+
+                return ParseSpec.createTerminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))), newState);
+            }
+        };
+    }
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's code blocks.
@@ -200,16 +203,17 @@ public final class DiscordMarkdownRules {
     /**
      * Creates all the style rules.
      *
+     * @see #createQuoteRule()
+     * @see #createCodeStringRule()
      * @see #createCodeBlockRule()
      * @see #createSpoilerRule()
-     * @see #createCodeStringRule()
      */
     public static <R> List<Rule<R, Node<R>, Object>> createStyleRules() {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
-        rules.add(createCodeBlockRule());
+        rules.add(createQuoteRule());
         rules.add(createSpoilerRule());
+        rules.add(createCodeBlockRule());
         rules.add(createCodeStringRule());
-//        rules.add(createQuoteRule()); // see: javadoc comment
 
         return rules;
     }
@@ -222,8 +226,8 @@ public final class DiscordMarkdownRules {
      */
     public static <R> List<Rule<R, Node<R>, Object>> createDiscordMarkdownRules() {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
-        rules.addAll(createMentionRules());
         rules.addAll(createStyleRules());
+        rules.addAll(createMentionRules());
 
         return rules;
     }
@@ -258,13 +262,22 @@ public final class DiscordMarkdownRules {
         return rules;
     }
 
-    private static class QuoteState {
+    /**
+     * A state for quotes, used to not recursively parse quotes.
+     */
+    public static class QuoteState {
         private boolean isInQuote;
 
-        QuoteState(boolean isInQuote) {
+        /**
+         * Creates a {@link dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules.QuoteState}.
+         */
+        public QuoteState(boolean isInQuote) {
             this.isInQuote = isInQuote;
         }
 
+        /**
+         * Sets a new status for this quote state.
+         */
         public QuoteState newQuoteState(boolean isInQuote) {
             this.isInQuote = isInQuote;
             return this;

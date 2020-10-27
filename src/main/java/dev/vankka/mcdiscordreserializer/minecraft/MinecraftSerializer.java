@@ -106,11 +106,8 @@ public class MinecraftSerializer {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
-        Component previous = Component.empty();
         for (Node<Object> node : nodes) {
-            Component child = addChild(node, previous, serializerOptions);
-            components.add(child);
-            previous = child;
+            components.add(addChild(node, Component.empty(), serializerOptions));
         }
 
         return Component.empty().children(components);
