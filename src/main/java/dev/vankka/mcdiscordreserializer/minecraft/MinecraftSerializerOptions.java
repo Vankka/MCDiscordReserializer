@@ -49,6 +49,11 @@ public class MinecraftSerializerOptions {
                 false);
     }
 
+    /**
+     * Deprecated.
+     * @deprecated Use {@link #addRenderer(dev.vankka.mcdiscordreserializer.renderer.NodeRenderer)} or
+     * {@link #addRenderer(int, dev.vankka.mcdiscordreserializer.renderer.NodeRenderer)}
+     */
     @Deprecated
     public MinecraftSerializerOptions withRenderer(MinecraftRenderer renderer) {
         return new MinecraftSerializerOptions(parser, rules, Collections.singletonList(renderer), debuggingEnabled);
@@ -63,11 +68,13 @@ public class MinecraftSerializerOptions {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions} with the given renderer added.
+     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * with the given renderer added.
      *
      * @param renderer the renderer to add
      * @return the new instance of options
-     * @throws java.lang.IllegalArgumentException if the renderer is already included in this options instance or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
+     * @throws java.lang.IllegalArgumentException if the renderer is already included in this options instance
+     * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(Object)
      */
     public MinecraftSerializerOptions addRenderer(NodeRenderer renderer) {
@@ -83,12 +90,14 @@ public class MinecraftSerializerOptions {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions} with the given renderer added at the given index, keep in mind a default renderer is always present.
+     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * with the given renderer added at the given index, keep in mind a default renderer is always present.
      *
      * @param renderer the renderer to add
      * @param index the index to add the renderer at
      * @return the new instance of options
-     * @throws java.lang.IllegalArgumentException if the renderer is already included in this options instance or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
+     * @throws java.lang.IllegalArgumentException if the renderer is already included in this options instance
+     * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(int, Object)
      */
     public MinecraftSerializerOptions addRenderer(int index, NodeRenderer renderer) {
@@ -104,7 +113,8 @@ public class MinecraftSerializerOptions {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions} without the given renderer.
+     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * without the given renderer.
      *
      * @param renderer the renderer to remove
      * @return the new instance of options
@@ -120,7 +130,7 @@ public class MinecraftSerializerOptions {
     }
 
     /**
-     * Returns the renderers for this options instance
+     * Returns the renderers for this options instance.
      * @return the ordered unmodifiable list of
      */
     public List<NodeRenderer> getRenderers() {
@@ -136,7 +146,8 @@ public class MinecraftSerializerOptions {
     private final Parser<Object, Node<Object>, Object> parser;
 
     /**
-     * The {@link dev.vankka.simpleast.core.parser.Rule Rules} for the {@link Parser}, null to use the {@link Parser Parsers} default rules.
+     * The {@link dev.vankka.simpleast.core.parser.Rule Rules} for the {@link Parser},
+     * {@code null} to use the {@link Parser Parsers} default rules.
      */
     @With
     @Getter

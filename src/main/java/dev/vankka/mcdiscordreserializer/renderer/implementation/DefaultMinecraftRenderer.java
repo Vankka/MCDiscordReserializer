@@ -29,9 +29,13 @@ import net.kyori.adventure.text.format.TextDecoration;
  */
 public final class DefaultMinecraftRenderer implements MinecraftRenderer {
 
+    /**
+     * The instance of {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}.
+     */
     public static final DefaultMinecraftRenderer INSTANCE = new DefaultMinecraftRenderer();
 
-    private DefaultMinecraftRenderer() {}
+    private DefaultMinecraftRenderer() {
+    }
 
     @Override
     public Component strikethrough(Component component) {

@@ -29,6 +29,17 @@ import java.util.function.Function;
  */
 public interface NodeRenderer {
 
+    /**
+     * Renders the given {@link dev.vankka.simpleast.core.node.Node} onto the provided
+     * {@link net.kyori.adventure.text.Component} using the given
+     * {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}.
+     *
+     * @param baseComponent the input component to apply the node to
+     * @param node the node
+     * @param serializerOptions the serializer options for this render
+     * @param renderWithChildren a function to allow rendering a node recursively
+     * @return the new component with the applied style
+     */
     Component render(Component baseComponent, Node<Object> node, MinecraftSerializerOptions serializerOptions,
                      Function<Node<Object>, Component> renderWithChildren);
 }

@@ -22,7 +22,6 @@ import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
-import dev.vankka.simpleast.core.parser.Parser;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -75,7 +74,7 @@ public class MinecraftSerializer {
      *
      * @param defaultOptions the default serializer options (can be overridden on serialize)
      * @see MinecraftSerializerOptions#defaults()
-     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(Parser, List, List, boolean)
+     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
     public MinecraftSerializer(@NonNull MinecraftSerializerOptions defaultOptions) {
         this.defaultOptions = defaultOptions;
@@ -101,7 +100,7 @@ public class MinecraftSerializer {
      * @param serializerOptions The options to use for this serialization
      * @return the Discord message formatted to a Minecraft TextComponent
      * @see MinecraftSerializerOptions#defaults()
-     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(Parser, List, List, boolean)
+     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
     public Component serialize(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions serializerOptions) {
         List<Component> components = new ArrayList<>();
