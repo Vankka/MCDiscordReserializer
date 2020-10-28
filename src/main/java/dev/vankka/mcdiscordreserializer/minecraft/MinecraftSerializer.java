@@ -118,14 +118,16 @@ public class MinecraftSerializer {
         Component component = Component.empty().mergeStyle(styleNode);
         Function<Node<Object>, Component> renderWithChildren = otherNode -> addChild(otherNode, component, serializerOptions);
 
-        Component output;
+        Component output = null;
         for (NodeRenderer renderer : serializerOptions.getRenderers()) {
             output = renderer.render(component, node, serializerOptions, renderWithChildren);
             if (output != null) {
                 break;
             }
         }
-        output = DefaultMinecraftRenderer.INSTANCE.render(component, node, serializerOptions, renderWithChildren);
+        if (output == null) {
+            output = DefaultMinecraftRenderer.INSTANCE.render(component, node, serializerOptions, renderWithChildren);
+        }
 
         Collection<Node<Object>> children = node.getChildren();
         if (children != null) {
