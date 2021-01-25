@@ -22,6 +22,7 @@ import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
+import dev.vankka.simpleast.core.node.TextNode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -106,6 +107,7 @@ public class MinecraftSerializer {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
+        nodes = flattenTextNodes(nodes); // reduce the amount of single character nodes caused by special characters
         for (Node<Object> node : nodes) {
             components.add(addChild(node, Component.empty(), serializerOptions));
         }
@@ -137,5 +139,44 @@ public class MinecraftSerializer {
         }
 
         return output;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R, T extends Node<R>> List<T> flattenTextNodes(List<T> nodes) {
+        List<T> newNodes = new ArrayList<>();
+        TextNode<T> previousNode = null;
+        for (T node : nodes) {
+            List<Node<R>> children = node.getChildren();
+            if (!children.isEmpty()) {
+                if (previousNode != null) {
+                    newNodes.add((T) previousNode);
+                    previousNode = null;
+                }
+
+                List<T> childNodes = flattenTextNodes((List<T>) children);
+                node.getChildren().clear();
+                node.getChildren().addAll(childNodes);
+                newNodes.add(node);
+                continue;
+            }
+            if (!(node instanceof TextNode)) {
+                if (previousNode != null) {
+                    newNodes.add((T) previousNode);
+                    previousNode = null;
+                }
+                newNodes.add(node);
+                continue;
+            }
+
+            if (previousNode == null) {
+                previousNode = (TextNode<T>) node;
+            } else {
+                previousNode = new TextNode<>(previousNode.getContent() + ((TextNode<?>) node).getContent());
+            }
+        }
+        if (previousNode != null) {
+            newNodes.add((T) previousNode);
+        }
+        return newNodes;
     }
 }

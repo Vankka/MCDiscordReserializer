@@ -21,7 +21,6 @@ package dev.vankka.mcdiscordreserializer.rules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
-import dev.vankka.simpleast.core.node.TextNode;
 import dev.vankka.simpleast.core.parser.ParseSpec;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
@@ -39,16 +38,16 @@ public final class DiscordMarkdownRules {
     private DiscordMarkdownRules() {
     }
 
-    private static final Pattern PATTERN_EMOTE_MENTION = Pattern.compile("<a?:(\\w+):(\\d+)>");
-    private static final Pattern PATTERN_CHANNEL_MENTION = Pattern.compile("<#(\\d+)>");
-    private static final Pattern PATTERN_USER_MENTION = Pattern.compile("<@!?(\\d+)>");
-    private static final Pattern PATTERN_ROLE_MENTION = Pattern.compile("<@&(\\d+)>");
+    private static final Pattern PATTERN_EMOTE_MENTION = Pattern.compile("^<a?:(\\w+):(\\d+)>");
+    private static final Pattern PATTERN_CHANNEL_MENTION = Pattern.compile("^<#(\\d+)>");
+    private static final Pattern PATTERN_USER_MENTION = Pattern.compile("^<@!?(\\d+)>");
+    private static final Pattern PATTERN_ROLE_MENTION = Pattern.compile("^<@&(\\d+)>");
 
-    private static final Pattern PATTERN_SPOILER = Pattern.compile("\\|\\|([\\s\\S]+?)\\|\\|");
-    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("`(.+?)`");
-    private static final Pattern PATTERN_QUOTE = Pattern.compile("> (.+(?:\\n> .+)*)", Pattern.MULTILINE);
-    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
-    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("([\\w\\W]+)");
+    private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
+    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
+    private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.MULTILINE);
+    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
+    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("^([\\w\\W]+)");
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
@@ -233,19 +232,6 @@ public final class DiscordMarkdownRules {
     }
 
     /**
-     * Creates a text rule that matches all characters, without cutting at special characters like
-     * {@link dev.vankka.simpleast.core.simple.SimpleMarkdownRules#createTextRule()}.
-     */
-    public static <R, S> Rule<R, Node<R>, S> createMatchAllTextRule() {
-        return new Rule<R, Node<R>, S>(PATTERN_MATCH_ALL) {
-            @Override
-            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                return ParseSpec.createTerminal(new TextNode<>(matcher.group()), state);
-            }
-        };
-    }
-
-    /**
      * Creates a set of rules for parsing Discord messages.
      *
      * @param includeText Should the text rule be included?
@@ -256,7 +242,7 @@ public final class DiscordMarkdownRules {
         rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
         rules.addAll(createDiscordMarkdownRules());
         if (includeText) {
-            rules.add(createMatchAllTextRule());
+            rules.add(SimpleMarkdownRules.createTextRule());
         }
 
         return rules;

@@ -88,7 +88,7 @@ test {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation group: 'net.kyori', name: 'adventure-api', version: '4.1.0'
-    implementation group: 'dev.vankka', name: 'SimpleAST', version: '2.2.5-SNAPSHOT'
+    implementation group: 'dev.vankka', name: 'SimpleAST', version: '2.2.5'
 }
 
 jar {
