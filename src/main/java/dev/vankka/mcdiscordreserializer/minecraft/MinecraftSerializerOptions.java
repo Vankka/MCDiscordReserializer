@@ -62,7 +62,7 @@ public class MinecraftSerializerOptions {
     @Deprecated
     public MinecraftRenderer getRenderer() {
         return renderers.stream()
-                .filter(renderer -> renderer instanceof MinecraftRenderer)
+                .filter(renderer -> renderer.getClass().equals(DefaultMinecraftRenderer.class))
                 .map(renderer -> (MinecraftRenderer) renderer)
                 .findFirst().orElse(DefaultMinecraftRenderer.INSTANCE);
     }
@@ -81,7 +81,7 @@ public class MinecraftSerializerOptions {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
-        if (renderer instanceof DefaultMinecraftRenderer) {
+        if (renderer.getClass().equals(DefaultMinecraftRenderer.class)) {
             throw new IllegalArgumentException("DefaultMinecraftRenderer cannot be added to serializer options");
         }
         List<NodeRenderer> renderers = new ArrayList<>(this.renderers);
@@ -104,7 +104,7 @@ public class MinecraftSerializerOptions {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
-        if (renderer instanceof DefaultMinecraftRenderer) {
+        if (renderer.getClass().equals(DefaultMinecraftRenderer.class)) {
             throw new IllegalArgumentException("DefaultMinecraftRenderer cannot be added to serializer options");
         }
         List<NodeRenderer> renderers = new ArrayList<>(this.renderers);
