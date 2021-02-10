@@ -45,9 +45,8 @@ public final class DiscordMarkdownRules {
 
     private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
-    private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.MULTILINE);
+    private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.DOTALL);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
-    private static final Pattern PATTERN_MATCH_ALL = Pattern.compile("^([\\w\\W]+)");
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
@@ -158,7 +157,8 @@ public final class DiscordMarkdownRules {
                 Map<String, String> extra = new HashMap<>();
                 extra.put("content", matcher.group(1).trim().replace("\n> ", "\n"));
 
-                return ParseSpec.createTerminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))), newState);
+                return ParseSpec.createNonterminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))),
+                        newState, matcher.start(1), matcher.end(1));
             }
         };
     }
