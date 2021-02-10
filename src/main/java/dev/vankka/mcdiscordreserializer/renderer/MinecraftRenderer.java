@@ -174,7 +174,7 @@ public interface MinecraftRenderer extends NodeRenderer {
     Component appendSpoiler(@NonNull Component component, @NonNull Component content);
 
     /**
-     * Renders the quote and appends it to the provided {@link Component}.
+     * Adds the required formatting for quotes to the provided {@link Component}.
      *
      * @param component the {@link Component} to render to
      * @param content   the content of the quote

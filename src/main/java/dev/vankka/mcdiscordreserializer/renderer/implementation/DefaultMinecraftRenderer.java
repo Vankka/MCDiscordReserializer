@@ -80,7 +80,7 @@ public final class DefaultMinecraftRenderer implements MinecraftRenderer {
     @Override
     public Component appendQuote(Component component, Component content) {
         Component prefix = Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD);
-        return component.append(prefix).append(content.replaceText(PATTERN_NEWLINE, builder -> builder.append(prefix)));
+        return Component.empty().append(prefix).append(component.replaceText(PATTERN_NEWLINE, builder -> builder.append(prefix)));
     }
 
     @Override
