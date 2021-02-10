@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 /**
  * The default implementation for the {@link MinecraftRenderer}.
  */
-public final class DefaultMinecraftRenderer implements MinecraftRenderer {
+public class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     /**
      * The instance of {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}.
@@ -38,7 +38,7 @@ public final class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     private static final Pattern PATTERN_NEWLINE = Pattern.compile("\n");
 
-    private DefaultMinecraftRenderer() {
+    public DefaultMinecraftRenderer() {
     }
 
     @Override
