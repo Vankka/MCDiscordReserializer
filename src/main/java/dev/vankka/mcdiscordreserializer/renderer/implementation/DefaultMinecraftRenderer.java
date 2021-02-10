@@ -38,6 +38,10 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
 
     private static final Pattern PATTERN_NEWLINE = Pattern.compile("\n");
 
+    /**
+     * Creates a new instance of the {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer} unless you're extending the class you shouldn't use this.
+     * @see #INSTANCE
+     */
     public DefaultMinecraftRenderer() {
     }
 
