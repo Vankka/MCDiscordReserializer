@@ -21,6 +21,7 @@ package dev.vankka.mcdiscordreserializer.rules;
 import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
+import dev.vankka.simpleast.core.node.TextNode;
 import dev.vankka.simpleast.core.parser.ParseSpec;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
@@ -47,6 +48,9 @@ public final class DiscordMarkdownRules {
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
     private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.DOTALL);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
+
+    // for quotes
+    private static final Pattern PATTERN_TEXT = Pattern.compile("^[\\s\\S]+?(?=[^0-9A-Za-z\\s\\u00c0-\\uffff>]|\\n| {2,}\\n|\\w+:\\S|$)");
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
@@ -138,6 +142,9 @@ public final class DiscordMarkdownRules {
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's quotes.
      * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     *
+     * <p>You will need to use the specialized text rule from this class</p>
+     * @see #createSpecialTextRule()
      */
     public static <R> Rule<R, Node<R>, Object> createQuoteRule() {
         return new Rule<R, Node<R>, Object>(PATTERN_QUOTE) {
@@ -176,6 +183,20 @@ public final class DiscordMarkdownRules {
 
                 return ParseSpec.createTerminal(StyleNode.Companion.createWithText(matcher.group(2),
                         (Collections.singletonList(new TextStyle(TextStyle.Type.CODE_BLOCK, extra)))), state);
+            }
+        };
+    }
+
+    /**
+     * Creates a special text rule for Discord, required only if using quotes.
+     * @see #createQuoteRule()
+     */
+    public static <R, S> Rule<R, Node<R>, S> createSpecialTextRule() {
+        return new Rule<R, Node<R>, S>(PATTERN_TEXT) {
+
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                return ParseSpec.createTerminal(new TextNode<>(matcher.group()), state);
             }
         };
     }
@@ -242,7 +263,7 @@ public final class DiscordMarkdownRules {
         rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
         rules.addAll(createDiscordMarkdownRules());
         if (includeText) {
-            rules.add(SimpleMarkdownRules.createTextRule());
+            rules.add(createSpecialTextRule());
         }
 
         return rules;
