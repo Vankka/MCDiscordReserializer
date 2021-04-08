@@ -37,10 +37,10 @@ import java.util.function.Function;
  * Interface for rendering formatting {@link dev.vankka.simpleast.core.node.Node}s into Minecraft
  * {@link net.kyori.adventure.text.Component}s for standard {@link dev.vankka.simpleast.core.TextStyle}s.
  */
-public interface MinecraftRenderer extends NodeRenderer {
+public interface MinecraftRenderer extends MinecraftNodeRenderer {
 
     @Override
-    default Component render(Component component, Node<Object> node, MinecraftSerializerOptions serializerOptions,
+    default Component render(Component component, Node<Object> node, MinecraftSerializerOptions<Component> serializerOptions,
                              Function<Node<Object>, Component> renderWithChildren) {
         if (node instanceof TextNode) {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());

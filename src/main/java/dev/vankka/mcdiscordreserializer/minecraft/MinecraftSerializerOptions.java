@@ -18,14 +18,15 @@
 
 package dev.vankka.mcdiscordreserializer.minecraft;
 
-import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
+import dev.vankka.simpleast.core.simple.SimpleMarkdownRules;
 import lombok.*;
+import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,38 +34,37 @@ import java.util.List;
 
 /**
  * Options for {@link MinecraftSerializer}s.
+ * @param <O> the type of the result produced with the renderers
  */
 @RequiredArgsConstructor
 @ToString
-public class MinecraftSerializerOptions {
+public class MinecraftSerializerOptions<O> {
 
     /**
-     * Creates the default {@link MinecraftSerializerOptions}.
+     * Creates the default {@link MinecraftSerializerOptions} for serialization.
      * @return the default {@link MinecraftSerializerOptions}.
      */
-    public static MinecraftSerializerOptions defaults() {
-        return new MinecraftSerializerOptions(new Parser<>(),
+    public static MinecraftSerializerOptions<Component> defaults() {
+        return new MinecraftSerializerOptions<>(new Parser<>(),
                 DiscordMarkdownRules.createAllRulesForDiscord(true),
                 Collections.emptyList(),
                 false);
     }
 
     /**
-     * Deprecated.
-     * @deprecated Use {@link #addRenderer(dev.vankka.mcdiscordreserializer.renderer.NodeRenderer)} or
-     * {@link #addRenderer(int, dev.vankka.mcdiscordreserializer.renderer.NodeRenderer)}
+     * Creates the default {@link MinecraftSerializerOptions} for escaping markdown.
+     * @return the default {@link MinecraftSerializerOptions}.
      */
-    @Deprecated
-    public MinecraftSerializerOptions withRenderer(MinecraftRenderer renderer) {
-        return new MinecraftSerializerOptions(parser, rules, Collections.singletonList(renderer), debuggingEnabled);
-    }
+    public static MinecraftSerializerOptions<String> escapeDefaults() {
+        List<Rule<Object, Node<Object>, Object>> rules = new ArrayList<>();
+        rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
+        rules.addAll(DiscordMarkdownRules.createStyleRules());
+        rules.add(SimpleMarkdownRules.createTextRule());
 
-    @Deprecated
-    public MinecraftRenderer getRenderer() {
-        return renderers.stream()
-                .filter(renderer -> renderer.getClass().equals(DefaultMinecraftRenderer.class))
-                .map(renderer -> (MinecraftRenderer) renderer)
-                .findFirst().orElse(DefaultMinecraftRenderer.INSTANCE);
+        return new MinecraftSerializerOptions<>(new Parser<>(),
+                rules,
+                Collections.emptyList(),
+                false);
     }
 
     /**
@@ -77,16 +77,16 @@ public class MinecraftSerializerOptions {
      * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(Object)
      */
-    public MinecraftSerializerOptions addRenderer(NodeRenderer renderer) {
+    public MinecraftSerializerOptions<O> addRenderer(NodeRenderer<O> renderer) {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
         if (renderer.getClass().equals(DefaultMinecraftRenderer.class)) {
             throw new IllegalArgumentException("DefaultMinecraftRenderer cannot be added to serializer options");
         }
-        List<NodeRenderer> renderers = new ArrayList<>(this.renderers);
+        List<NodeRenderer<O>> renderers = new ArrayList<>(this.renderers);
         renderers.add(renderer);
-        return new MinecraftSerializerOptions(parser, rules, renderers, debuggingEnabled);
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
     }
 
     /**
@@ -100,16 +100,16 @@ public class MinecraftSerializerOptions {
      * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(int, Object)
      */
-    public MinecraftSerializerOptions addRenderer(int index, NodeRenderer renderer) {
+    public MinecraftSerializerOptions<O> addRenderer(int index, NodeRenderer<O> renderer) {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
         if (renderer.getClass().equals(DefaultMinecraftRenderer.class)) {
             throw new IllegalArgumentException("DefaultMinecraftRenderer cannot be added to serializer options");
         }
-        List<NodeRenderer> renderers = new ArrayList<>(this.renderers);
+        List<NodeRenderer<O>> renderers = new ArrayList<>(this.renderers);
         renderers.add(index, renderer);
-        return new MinecraftSerializerOptions(parser, rules, renderers, debuggingEnabled);
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
     }
 
     /**
@@ -120,20 +120,20 @@ public class MinecraftSerializerOptions {
      * @return the new instance of options
      * @throws java.lang.IllegalArgumentException if the renderer is not included in this options instance
      */
-    public MinecraftSerializerOptions removeRenderer(NodeRenderer renderer) {
+    public MinecraftSerializerOptions<O> removeRenderer(NodeRenderer<O> renderer) {
         if (!renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is not included in this options instance");
         }
-        List<NodeRenderer> renderers = new ArrayList<>(this.renderers);
+        List<NodeRenderer<O>> renderers = new ArrayList<>(this.renderers);
         renderers.remove(renderer);
-        return new MinecraftSerializerOptions(parser, rules, renderers, debuggingEnabled);
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
     }
 
     /**
      * Returns the renderers for this options instance.
      * @return the ordered unmodifiable list of
      */
-    public List<NodeRenderer> getRenderers() {
+    public List<NodeRenderer<O>> getRenderers() {
         return Collections.unmodifiableList(renderers);
     }
 
@@ -157,7 +157,7 @@ public class MinecraftSerializerOptions {
      * The {@link dev.vankka.mcdiscordreserializer.renderer.NodeRenderer}s to use to render formatting for Minecraft.
      */
     @NonNull
-    private final List<NodeRenderer> renderers;
+    private final List<NodeRenderer<O>> renderers;
 
     /**
      * Weather or not to use debug logging for the {@link Parser}.

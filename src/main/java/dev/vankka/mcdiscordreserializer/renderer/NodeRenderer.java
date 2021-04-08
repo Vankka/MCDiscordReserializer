@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018-2020 Vankka
+ * Copyright (C) 2018-2021 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,26 +20,41 @@ package dev.vankka.mcdiscordreserializer.renderer;
 
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
 import dev.vankka.simpleast.core.node.Node;
-import net.kyori.adventure.text.Component;
 
 import java.util.function.Function;
 
 /**
- * Interface for rendering {@link dev.vankka.simpleast.core.node.Node}s into Minecraft {@link net.kyori.adventure.text.Component}s.
+ * Interface for rendering {@link dev.vankka.simpleast.core.node.Node}s into the given type.
+ * @param <O> the type.
  */
-public interface NodeRenderer {
+public interface NodeRenderer<O> {
 
     /**
      * Renders the given {@link dev.vankka.simpleast.core.node.Node} onto the provided
-     * {@link net.kyori.adventure.text.Component} using the given
-     * {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}.
+     * input using the given {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}.
      *
-     * @param baseComponent the input component to apply the node to
+     * @param renderTo the input to apply the node to
      * @param node the node
      * @param serializerOptions the serializer options for this render
      * @param renderWithChildren a function to allow rendering a node recursively
-     * @return the new component with the applied style
+     * @return the renderTo input with the node applied to it
      */
-    Component render(Component baseComponent, Node<Object> node, MinecraftSerializerOptions serializerOptions,
-                     Function<Node<Object>, Component> renderWithChildren);
+    O render(O renderTo, Node<Object> node, MinecraftSerializerOptions<O> serializerOptions,
+             Function<Node<Object>, O> renderWithChildren);
+
+    /**
+     * Renders a given {@link dev.vankka.simpleast.core.node.Node} after children for it have been processed.
+     *
+     * @param renderTo the input to apply the node to
+     * @param node the node
+     * @param serializerOptions the serializer options for this render
+     * @param renderWithChildren a function to allow rendering a node recursively
+     * @return the renderTo input with the node applied to it
+     * @see #render(Object, dev.vankka.simpleast.core.node.Node, dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions, java.util.function.Function)
+     */
+    default O renderAfterChildren(O renderTo, Node<Object> node,
+                                  MinecraftSerializerOptions<O> serializerOptions,
+                                  Function<Node<Object>, O> renderWithChildren) {
+        return null;
+    }
 }

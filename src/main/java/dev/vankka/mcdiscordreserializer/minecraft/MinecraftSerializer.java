@@ -20,6 +20,7 @@ package dev.vankka.mcdiscordreserializer.minecraft;
 
 import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
+import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultDiscordEscapingRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
@@ -46,28 +47,46 @@ public class MinecraftSerializer {
 
     /**
      * Default instance of the MinecraftSerializer, incase that's all you need.
-     * Using {@link MinecraftSerializer#setDefaultOptions(MinecraftSerializerOptions)} is not allowed.
+     * Using {@link MinecraftSerializer#setDefaultOptions(MinecraftSerializerOptions)} and
+     * {@link MinecraftSerializer#setMarkdownDefaultOptions(MinecraftSerializerOptions)} are not allowed.
      */
     public static final MinecraftSerializer INSTANCE = new MinecraftSerializer() {
 
         @Override
-        public void setDefaultOptions(MinecraftSerializerOptions defaultOptions) {
+        public void setDefaultOptions(MinecraftSerializerOptions<Component> defaultOptions) {
+            throw new UnsupportedOperationException("Cannot modify public instance");
+        }
+
+        @Override
+        public void setMarkdownDefaultOptions(MinecraftSerializerOptions<String> markdownDefaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
     };
 
     /**
-     * The default {@link MinecraftSerializerOptions} to use for this serializer.
+     * The default {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * to use for this serializer.
+     * @see #serialize(String)
      */
     @Getter
     @Setter
-    private MinecraftSerializerOptions defaultOptions;
+    private MinecraftSerializerOptions<Component> defaultOptions;
 
     /**
-     * Constructor for creating a serializer, with {@link MinecraftSerializerOptions#defaults()} as defaults.
+     * The default {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * to use for escaping markdown.
+     * @see #escapeMarkdown(String, MinecraftSerializerOptions)
+     */
+    @Getter
+    @Setter
+    private MinecraftSerializerOptions<String> markdownDefaultOptions;
+
+    /**
+     * Constructor for creating a serializer, with {@link MinecraftSerializerOptions#defaults()}
+     * and {@link MinecraftSerializerOptions#escapeDefaults()} as defaults.
      */
     public MinecraftSerializer() {
-        this(MinecraftSerializerOptions.defaults());
+        this(MinecraftSerializerOptions.defaults(), MinecraftSerializerOptions.escapeDefaults());
     }
 
     /**
@@ -77,8 +96,10 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
-    public MinecraftSerializer(@NonNull MinecraftSerializerOptions defaultOptions) {
+    public MinecraftSerializer(@NonNull MinecraftSerializerOptions<Component> defaultOptions,
+                               @NonNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
         this.defaultOptions = defaultOptions;
+        this.markdownDefaultOptions = markdownDefaultOptions;
     }
 
     /**
@@ -90,7 +111,7 @@ public class MinecraftSerializer {
      * @return the Discord message formatted to a Minecraft TextComponent
      */
     public Component serialize(@NonNull final String discordMessage) {
-        MinecraftSerializerOptions options = getDefaultOptions();
+        MinecraftSerializerOptions<Component> options = getDefaultOptions();
         return serialize(discordMessage, options);
     }
 
@@ -103,7 +124,7 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
-    public Component serialize(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions serializerOptions) {
+    public Component serialize(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions<Component> serializerOptions) {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
@@ -115,20 +136,56 @@ public class MinecraftSerializer {
         return Component.empty().children(components);
     }
 
-    private Component addChild(@NonNull final Node<Object> node, @NonNull final Component styleNode,
-                               @NonNull final MinecraftSerializerOptions serializerOptions) {
+    /**
+     * Escapes the given Discord message of Discord markdown. Should include the entire message (not just a part) to be effective.
+     *
+     * @param discordMessage    the Discord message
+     * @return the Discord markdown message with markdown escaped
+     * @see MinecraftSerializerOptions#escapeDefaults()
+     * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String, MinecraftSerializerOptions)
+     */
+    public String escapeMarkdown(@NonNull final String discordMessage) {
+        return escapeMarkdown(discordMessage, getMarkdownDefaultOptions());
+    }
+
+    /**
+     * Escapes the given Discord message of Discord markdown. Should include the entire message (not just a part) to be effective.
+     *
+     * @param discordMessage    the Discord message
+     * @param serializerOptions options for this escape
+     * @return the Discord markdown message with markdown escaped
+     * @see MinecraftSerializerOptions#escapeDefaults()
+     * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String)
+     */
+    public String escapeMarkdown(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions<String> serializerOptions) {
+        String output = "";
+
+        List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
+        nodes = flattenTextNodes(nodes); // reduce the amount of single character nodes caused by special characters
+        for (Node<Object> node : nodes) {
+            output = addChild(node, output, serializerOptions);
+        }
+
+        return output;
+    }
+
+    private Component addChild(final Node<Object> node, final Component styleNode,
+                               final MinecraftSerializerOptions<Component> serializerOptions) {
         Component component = Component.empty().mergeStyle(styleNode);
         Function<Node<Object>, Component> renderWithChildren = otherNode -> addChild(otherNode, component, serializerOptions);
 
         Component output = null;
-        for (NodeRenderer renderer : serializerOptions.getRenderers()) {
+        NodeRenderer<Component> render = null;
+        for (NodeRenderer<Component> renderer : serializerOptions.getRenderers()) {
             output = renderer.render(component, node, serializerOptions, renderWithChildren);
             if (output != null) {
+                render = renderer;
                 break;
             }
         }
         if (output == null) {
-            output = DefaultMinecraftRenderer.INSTANCE.render(component, node, serializerOptions, renderWithChildren);
+            render = DefaultMinecraftRenderer.INSTANCE;
+            output = render.render(component, node, serializerOptions, renderWithChildren);
         }
 
         Collection<Node<Object>> children = node.getChildren();
@@ -136,6 +193,44 @@ public class MinecraftSerializer {
             for (Node<Object> child : children) {
                 output = output.append(addChild(child, output, serializerOptions));
             }
+        }
+
+        Component newOutput = render.renderAfterChildren(output, node, serializerOptions, renderWithChildren);
+        if (newOutput != null) {
+            output = newOutput;
+        }
+
+        return output;
+    }
+
+    private String addChild(final Node<Object> node, final String input,
+                          final MinecraftSerializerOptions<String> serializerOptions) {
+        Function<Node<Object>, String> renderWithChildren = otherNode -> addChild(otherNode, input, serializerOptions);
+
+        String output = null;
+        NodeRenderer<String> render = null;
+        for (NodeRenderer<String> renderer : serializerOptions.getRenderers()) {
+            output = renderer.render(output, node, serializerOptions, renderWithChildren);
+            if (output != null) {
+                render = renderer;
+                break;
+            }
+        }
+        if (output == null) {
+            render = DefaultDiscordEscapingRenderer.INSTANCE;
+            output = render.render(input, node, serializerOptions, renderWithChildren);
+        }
+
+        Collection<Node<Object>> children = node.getChildren();
+        if (children != null) {
+            for (Node<Object> child : children) {
+                output = addChild(child, output, serializerOptions);
+            }
+        }
+
+        String newOutput = render.renderAfterChildren(output, node, serializerOptions, renderWithChildren);
+        if (newOutput != null) {
+            output = newOutput;
         }
 
         return output;

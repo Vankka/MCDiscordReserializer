@@ -26,13 +26,12 @@ plugins {
 }
 
 group 'dev.vankka'
-version '4.1.1-SNAPSHOT'
+version '4.2.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url 'https://nexus.vankka.dev/repository/maven-public/' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
@@ -88,7 +87,7 @@ test {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     api group: 'net.kyori', name: 'adventure-api', version: '4.1.0'
-    api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.5'
+    api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.6'
 }
 
 jar {
