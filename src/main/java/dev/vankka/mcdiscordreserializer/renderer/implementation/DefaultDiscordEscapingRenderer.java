@@ -89,7 +89,6 @@ public class DefaultDiscordEscapingRenderer implements NodeRenderer<String> {
     public String renderAfterChildren(String renderTo, Node<Object> node,
                                                    MinecraftSerializerOptions<String> serializerOptions,
                                                    Function<Node<Object>, String> renderWithChildren) {
-        System.out.println(node);
         return render(renderTo, node, true);
     }
 }
