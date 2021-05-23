@@ -182,7 +182,7 @@ public final class DiscordMarkdownRules {
                 extra.put("language", matcher.group(1));
 
                 return ParseSpec.createTerminal(StyleNode.Companion.createWithText(matcher.group(2),
-                        (Collections.singletonList(new TextStyle(TextStyle.Type.CODE_BLOCK, extra)))), state);
+                        new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.CODE_BLOCK, extra)))), state);
             }
         };
     }
