@@ -14,8 +14,13 @@ jobs:
           java-version: 8
       - name: Make gradlew executable
         run: chmod +x gradlew
-      - name: Deploy to Nexus with Gradle
-        run: ./gradlew publish
+      - name: Deploy with Gradle
+        run: |
+          echo "ossrhUsername=$SONATYPE_USERNAME" >> gradle.properties
+          echo "ossrhPassword=$SONATYPE_PASSWORD" >> gradle.properties
+          ./gradlew publishProject
         env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_KEY: ${{ secrets.SONATYPE_KEY }}
+          SONATYPE_KEY_PASS: ${{ secrets.SONATYPE_KEY_PASS }}

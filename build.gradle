@@ -1,28 +1,8 @@
-/*
- * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018-2020 Vankka
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'io.franzbecker.gradle-lombok' version '3.2.0'
+    id 'org.cadixdev.licenser' version '0.6.0'
     id 'java-library'
-    id 'idea'
-    id 'checkstyle'
-    id 'maven-publish'
 }
 
 group 'dev.vankka'
@@ -32,8 +12,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url 'https://nexus.vankka.dev/repository/maven-public/' }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 javadoc {
@@ -45,34 +24,9 @@ javadoc {
     failOnError = false
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
 lombok {
     version = '1.18.10'
     sha256 = ''
-}
-
-checkstyle {
-    configFile = rootProject.file('checkstyle.xml')
-}
-checkstyleMain {
-    source = sourceSets.main.allJava
-}
-checkstyleTest {
-    source = sourceSets.test.allJava
 }
 
 test {
@@ -84,13 +38,25 @@ test {
     subprojects.each { dependsOn(it.path + ':test') }
 }
 
+license {
+    header = rootProject.file('LICENSE_HEADER')
+    properties {
+        String inception = '2018'
+        String currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+        year = inception == currentYear ? currentYear : inception + '-' + currentYear
+    }
+    include '**/*.java' // only java files
+}
+
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     api group: 'net.kyori', name: 'adventure-api', version: '4.1.0'
     api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.7-SNAPSHOT'
 }
 
 jar {
+    dependsOn licenseFormat
     finalizedBy shadowJar
 }
 
@@ -99,23 +65,78 @@ shadowJar {
     classifier 'shaded'
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact shadowJar
-            artifact sourcesJar
-            artifact javadocJar
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+if (System.getenv('SONATYPE_KEY') == null && !project.hasProperty("signing.keyId")) {
+    // Don't even bother with signing/publishing if neither of these are set
+    return
+}
+
+task publishProject {
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    dependsOn tasks.build
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.java
+
+                pom {
+                    name = project.name
+                    packaging = 'jar'
+                    description = 'A library for transcoding between Minecraft and Discord. '
+                    url = 'https://github.com/Vankka/MCDiscordReserializer'
+
+                    scm {
+                        connection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
+                        developerConnection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
+                        url = 'https://github.com/Vankka/MCDiscordReserializer'
+                    }
+
+                    licenses {
+                        license {
+                            name = 'GNU General Public License, Version 3.0'
+                            url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'Vankka'
+                        }
+                    }
+                }
+            }
+        }
+
+        signing {
+            sign publishing.publications.maven
+
+            def key = System.getenv('SONATYPE_KEY')
+            if (key != null) {
+                useInMemoryPgpKeys(key, System.getenv('SONATYPE_KEY_PASS'))
+            }
+        }
+
+        repositories {
+            maven {
+                credentials {
+                    username findProperty('ossrhUsername')
+                    password findProperty('ossrhPassword')
+                }
+                url version.endsWith('-SNAPSHOT') ? 'https://s01.oss.sonatype.org/content/repositories/snapshots/' : 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            }
         }
     }
 
-    repositories {
-        maven {
-            credentials {
-                username System.getenv('NEXUS_USERNAME')
-                password System.getenv('NEXUS_PASSWORD')
-            }
-            url version.endsWith('-SNAPSHOT') ? 'https://nexus.vankka.dev/repository/maven-snapshots/' : 'https://nexus.vankka.dev/repository/maven-releases/'
-        }
-    }
+    finalizedBy publish
 }
