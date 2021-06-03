@@ -6,13 +6,18 @@ plugins {
 }
 
 group 'dev.vankka'
-version '4.2.0-SNAPSHOT'
+version '4.2.1-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+
+    if (version.endsWith('-SNAPSHOT')) { // Permit snapshots only when the version is a snapshot
+        maven {
+            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
 }
 
 javadoc {
@@ -52,7 +57,7 @@ license {
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     api group: 'net.kyori', name: 'adventure-api', version: '4.1.0'
-    api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.7-SNAPSHOT'
+    api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.7'
 }
 
 jar {
