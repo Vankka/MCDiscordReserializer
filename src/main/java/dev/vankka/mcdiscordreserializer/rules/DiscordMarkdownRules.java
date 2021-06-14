@@ -75,7 +75,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createChannelMentionRule() {
-        return createSimpleMentionRule(PATTERN_CHANNEL_MENTION, new TextStyle(TextStyle.Type.MENTION_CHANNEL));
+        return createSimpleMentionRule(PATTERN_CHANNEL_MENTION, TextStyle.Type.MENTION_CHANNEL);
     }
 
 
@@ -84,7 +84,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createUserMentionRule() {
-        return createSimpleMentionRule(PATTERN_USER_MENTION, new TextStyle(TextStyle.Type.MENTION_USER));
+        return createSimpleMentionRule(PATTERN_USER_MENTION, TextStyle.Type.MENTION_USER);
     }
 
 
@@ -93,7 +93,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createRoleMentionRule() {
-        return createSimpleMentionRule(PATTERN_ROLE_MENTION, new TextStyle(TextStyle.Type.MENTION_ROLE));
+        return createSimpleMentionRule(PATTERN_ROLE_MENTION, TextStyle.Type.MENTION_ROLE);
     }
 
     /**
@@ -127,13 +127,14 @@ public final class DiscordMarkdownRules {
         };
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle textStyle) {
+    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle.Type styleType) {
         return new Rule<R, Node<R>, S>(pattern) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                textStyle.getExtra().put("id", matcher.group(1));
+                Map<String, String> extra = new HashMap<>();
+                extra.put("id", matcher.group(1));
+                TextStyle textStyle = new TextStyle(styleType, extra);
 
-                // , matcher.start(1), matcher.end(1)
                 return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(textStyle))), state);
             }
         };
