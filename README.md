@@ -1,4 +1,9 @@
-# MCDiscordReserializer ![Build](https://github.com/Vankka/MCDiscordReserializer/workflows/Build/badge.svg) ![Deploy](https://github.com/Vankka/MCDiscordReserializer/workflows/Deploy/badge.svg)
+# MCDiscordReserializer 
+![Build](https://github.com/Vankka/MCDiscordReserializer/workflows/Build/badge.svg) 
+![Deploy](https://github.com/Vankka/MCDiscordReserializer/workflows/Deploy/badge.svg)
+![Maven Central](https://img.shields.io/maven-central/v/dev.vankka/mcdiscordreserializer?label=release)
+![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/dev.vankka/mcdiscordreserializer?label=dev&server=https%3A%2F%2Fs01.oss.sonatype.org)
+
 A library for transcoding between Minecraft and Discord.
 
 Minecraft text is represented using [Kyori's Adventure](https://github.com/KyoriPowered/adventure) (compatible with 4.x.x).
@@ -22,8 +27,8 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 <dependencies>
     <dependency>
         <groupId>dev.vankka</groupId>
-        <artifactId>MCDiscordReserializer</artifactId>
-        <version>4.2.0</version>
+        <artifactId>mcdiscordreserializer</artifactId>
+        <version>4.2.2</version>
     </dependency>
 </dependencies>
 ```
@@ -35,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.vankka:MCDiscordReserializer:4.2.0'
+    implementation 'dev.vankka:mcdiscordreserializer:4.2.2'
 }
 ```
 
