@@ -50,20 +50,6 @@ public class DiscordSerializer {
         public void setDefaultOptions(DiscordSerializerOptions defaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        @Deprecated
-        public void setKeybindProvider(Function<KeybindComponent, String> provider) {
-            throw new UnsupportedOperationException("Cannot modify public instance");
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        @Deprecated
-        public void setTranslationProvider(Function<TranslatableComponent, String> provider) {
-            throw new UnsupportedOperationException("Cannot modify public instance");
-        }
     };
 
     /**
@@ -72,8 +58,6 @@ public class DiscordSerializer {
     @Getter
     @Setter
     private DiscordSerializerOptions defaultOptions;
-    private Function<KeybindComponent, String> keybindProvider;
-    private Function<TranslatableComponent, String> translationProvider;
 
     /**
      * Constructor for creating a serializer, which {@link DiscordSerializerOptions#defaults()} as defaults.
@@ -94,67 +78,6 @@ public class DiscordSerializer {
     }
 
     /**
-     * Constructor fore creating a serializer with translations provided with arguments.
-     *
-     * @param keybindProvider     The keybind provider.
-     * @param translationProvider The translation provider.
-     * @deprecated Use {@link #DiscordSerializer(DiscordSerializerOptions)}
-     * {@link DiscordSerializerOptions#withKeybindProvider(Function)}
-     * {@link DiscordSerializerOptions#withTranslationProvider(Function)}
-     */
-    @Deprecated
-    public DiscordSerializer(Function<KeybindComponent, String> keybindProvider,
-                             Function<TranslatableComponent, String> translationProvider) {
-        this.defaultOptions = DiscordSerializerOptions.defaults();
-        this.keybindProvider = keybindProvider;
-        this.translationProvider = translationProvider;
-    }
-
-    /**
-     * Returns the keybind provider for this serializer.
-     *
-     * @return keybind provider, a KeybindComponent to String function
-     * @deprecated Use {@link #getDefaultOptions()} {@link DiscordSerializerOptions#getKeybindProvider()}
-     */
-    @Deprecated
-    public Function<KeybindComponent, String> getKeybindProvider() {
-        return keybindProvider;
-    }
-
-    /**
-     * Sets the keybind provider for this serializer.
-     *
-     * @param provider a KeybindComponent to String function
-     * @deprecated Use {@link #setDefaultOptions(DiscordSerializerOptions)} {@link DiscordSerializerOptions#withKeybindProvider(Function)}
-     */
-    @Deprecated
-    public void setKeybindProvider(Function<KeybindComponent, String> provider) {
-        keybindProvider = provider;
-    }
-
-    /**
-     * Returns the translation provider for this serializer.
-     *
-     * @return keybind provider, a TranslatableComponent to String function
-     * @deprecated Use {@link #getDefaultOptions()} {@link DiscordSerializerOptions#getTranslationProvider()}
-     */
-    @Deprecated
-    public Function<TranslatableComponent, String> getTranslationProvider() {
-        return translationProvider;
-    }
-
-    /**
-     * Sets the translation provider for this serializer.
-     *
-     * @param provider a TranslationComponent to String function
-     * @deprecated Use {@link #setDefaultOptions(DiscordSerializerOptions)} {@link DiscordSerializerOptions#withTranslationProvider(Function)}
-     */
-    @Deprecated
-    public void setTranslationProvider(Function<TranslatableComponent, String> provider) {
-        translationProvider = provider;
-    }
-
-    /**
      * Serializes a {@link Component} to Discord formatting (markdown) with this serializer's {@link DiscordSerializer#getDefaultOptions() default options}.<br/>
      * Use {@link DiscordSerializer#serialize(Component, DiscordSerializerOptions)} to fine tune the serialization options.
      *
@@ -163,26 +86,7 @@ public class DiscordSerializer {
      */
     public String serialize(@NonNull final Component component) {
         DiscordSerializerOptions options = getDefaultOptions();
-        if (keybindProvider != null) {
-            options = options.withKeybindProvider(keybindProvider);
-        }
-        if (translationProvider != null) {
-            options = options.withTranslationProvider(translationProvider);
-        }
         return serialize(component, options);
-    }
-
-    /**
-     * Serializes a Component (from a chat message) to Discord formatting (markdown).
-     *
-     * @param component     The text component from a Minecraft chat message
-     * @param embedLinks    Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds)
-     * @return Discord markdown formatted String
-     * @deprecated Use {@link #serialize(Component, DiscordSerializerOptions)} {@link DiscordSerializerOptions#withEmbedLinks(boolean)}
-     */
-    @Deprecated
-    public String serialize(@NonNull final Component component, boolean embedLinks) {
-        return serialize(component, defaultOptions.withEmbedLinks(embedLinks));
     }
 
     /**
