@@ -21,6 +21,8 @@ package dev.vankka.mcdiscordreserializer.renderer;
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
 import dev.vankka.simpleast.core.node.Node;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -40,6 +42,9 @@ public interface MinecraftNodeRenderer extends NodeRenderer<Component> {
      * @param renderWithChildren a function to allow rendering a node recursively
      * @return the new component with the node applied to it
      */
-    Component render(Component baseComponent, Node<Object> node, MinecraftSerializerOptions<Component> serializerOptions,
-                     Function<Node<Object>, Component> renderWithChildren);
+    @Nullable
+    Component render(@NotNull Component baseComponent,
+                     @NotNull Node<Object> node,
+                     @NotNull MinecraftSerializerOptions<Component> serializerOptions,
+                     @NotNull Function<Node<Object>, Component> renderWithChildren);
 }

@@ -28,6 +28,7 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Text {
+
     private String content;
     private boolean bold;
     private boolean strikethrough;

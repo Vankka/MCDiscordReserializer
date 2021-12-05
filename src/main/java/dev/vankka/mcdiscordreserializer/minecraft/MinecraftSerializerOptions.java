@@ -27,6 +27,8 @@ import dev.vankka.simpleast.core.parser.Rule;
 import dev.vankka.simpleast.core.simple.SimpleMarkdownRules;
 import lombok.*;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +70,7 @@ public class MinecraftSerializerOptions<O> {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
      * with the given renderer added.
      *
      * @param renderer the renderer to add
@@ -77,7 +79,8 @@ public class MinecraftSerializerOptions<O> {
      * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(Object)
      */
-    public MinecraftSerializerOptions<O> addRenderer(NodeRenderer<O> renderer) {
+    @NotNull
+    public MinecraftSerializerOptions<O> addRenderer(@NotNull NodeRenderer<O> renderer) {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
@@ -90,7 +93,7 @@ public class MinecraftSerializerOptions<O> {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
      * with the given renderer added at the given index, keep in mind a default renderer is always present.
      *
      * @param renderer the renderer to add
@@ -100,7 +103,8 @@ public class MinecraftSerializerOptions<O> {
      * or is of type {@link dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer}
      * @see List#add(int, Object)
      */
-    public MinecraftSerializerOptions<O> addRenderer(int index, NodeRenderer<O> renderer) {
+    @NotNull
+    public MinecraftSerializerOptions<O> addRenderer(int index, @NotNull NodeRenderer<O> renderer) {
         if (renderers.contains(renderer)) {
             throw new IllegalArgumentException("The provided renderer is already included in this options instance");
         }
@@ -113,7 +117,7 @@ public class MinecraftSerializerOptions<O> {
     }
 
     /**
-     * Creates a instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
      * without the given renderer.
      *
      * @param renderer the renderer to remove
@@ -133,6 +137,7 @@ public class MinecraftSerializerOptions<O> {
      * Returns the renderers for this options instance.
      * @return the ordered unmodifiable list of
      */
+    @NotNull
     public List<NodeRenderer<O>> getRenderers() {
         return Collections.unmodifiableList(renderers);
     }
@@ -140,9 +145,9 @@ public class MinecraftSerializerOptions<O> {
     /**
      * The SimpleAST {@link Parser} to use to generate the abstract syntax tree.
      */
-    @NonNull
     @With
     @Getter
+    @NotNull
     private final Parser<Object, Node<Object>, Object> parser;
 
     /**
@@ -151,12 +156,13 @@ public class MinecraftSerializerOptions<O> {
      */
     @With
     @Getter
+    @Nullable
     private final List<Rule<Object, Node<Object>, Object>> rules;
 
     /**
      * The {@link dev.vankka.mcdiscordreserializer.renderer.NodeRenderer}s to use to render formatting for Minecraft.
      */
-    @NonNull
+    @NotNull
     private final List<NodeRenderer<O>> renderers;
 
     /**

@@ -25,9 +25,9 @@ import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraft
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +42,7 @@ import java.util.function.Function;
  * @see MinecraftSerializerOptions
  * @see MinecraftRenderer
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("unused") // API
 public class MinecraftSerializer {
 
     /**
@@ -50,15 +50,16 @@ public class MinecraftSerializer {
      * Using {@link MinecraftSerializer#setDefaultOptions(MinecraftSerializerOptions)} and
      * {@link MinecraftSerializer#setMarkdownDefaultOptions(MinecraftSerializerOptions)} are not allowed.
      */
+    @NotNull
     public static final MinecraftSerializer INSTANCE = new MinecraftSerializer() {
 
         @Override
-        public void setDefaultOptions(MinecraftSerializerOptions<Component> defaultOptions) {
+        public void setDefaultOptions(@NotNull MinecraftSerializerOptions<Component> defaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
 
         @Override
-        public void setMarkdownDefaultOptions(MinecraftSerializerOptions<String> markdownDefaultOptions) {
+        public void setMarkdownDefaultOptions(@NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
     };
@@ -70,6 +71,7 @@ public class MinecraftSerializer {
      */
     @Getter
     @Setter
+    @NotNull
     private MinecraftSerializerOptions<Component> defaultOptions;
 
     /**
@@ -96,8 +98,8 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
-    public MinecraftSerializer(@NonNull MinecraftSerializerOptions<Component> defaultOptions,
-                               @NonNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
+    public MinecraftSerializer(@NotNull MinecraftSerializerOptions<Component> defaultOptions,
+                               @NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
         this.defaultOptions = defaultOptions;
         this.markdownDefaultOptions = markdownDefaultOptions;
     }
@@ -110,7 +112,8 @@ public class MinecraftSerializer {
      * @param discordMessage a Discord markdown message
      * @return the Discord message formatted to a Minecraft TextComponent
      */
-    public Component serialize(@NonNull final String discordMessage) {
+    @NotNull
+    public Component serialize(@NotNull final String discordMessage) {
         MinecraftSerializerOptions<Component> options = getDefaultOptions();
         return serialize(discordMessage, options);
     }
@@ -124,7 +127,8 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
-    public Component serialize(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions<Component> serializerOptions) {
+    @NotNull
+    public Component serialize(@NotNull final String discordMessage, @NotNull final MinecraftSerializerOptions<Component> serializerOptions) {
         List<Component> components = new ArrayList<>();
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
@@ -144,7 +148,7 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#escapeDefaults()
      * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String, MinecraftSerializerOptions)
      */
-    public String escapeMarkdown(@NonNull final String discordMessage) {
+    public String escapeMarkdown(@NotNull final String discordMessage) {
         return escapeMarkdown(discordMessage, getMarkdownDefaultOptions());
     }
 
@@ -157,7 +161,7 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#escapeDefaults()
      * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String)
      */
-    public String escapeMarkdown(@NonNull final String discordMessage, @NonNull final MinecraftSerializerOptions<String> serializerOptions) {
+    public String escapeMarkdown(@NotNull final String discordMessage, @NotNull final MinecraftSerializerOptions<String> serializerOptions) {
         String output = "";
 
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
@@ -177,8 +181,9 @@ public class MinecraftSerializer {
         Component output = null;
         NodeRenderer<Component> render = null;
         for (NodeRenderer<Component> renderer : serializerOptions.getRenderers()) {
-            output = renderer.render(component, node, serializerOptions, renderWithChildren);
-            if (output != null) {
+            Component currentOutput = renderer.render(component, node, serializerOptions, renderWithChildren);
+            if (currentOutput != null) {
+                output = currentOutput;
                 render = renderer;
                 break;
             }
@@ -186,6 +191,9 @@ public class MinecraftSerializer {
         if (output == null) {
             render = DefaultMinecraftRenderer.INSTANCE;
             output = render.render(component, node, serializerOptions, renderWithChildren);
+            if (output == null) {
+                throw new IllegalStateException("DefaultMinecraftRenderer returned a null component");
+            }
         }
 
         Collection<Node<Object>> children = node.getChildren();

@@ -20,11 +20,11 @@ package dev.vankka.mcdiscordreserializer.discord;
 
 import dev.vankka.mcdiscordreserializer.text.Text;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.function.Function;
  * @see DiscordSerializerOptions
  * @see dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("unused") // API
 public class DiscordSerializer {
 
     /**
@@ -47,7 +47,7 @@ public class DiscordSerializer {
      */
     public static final DiscordSerializer INSTANCE = new DiscordSerializer() {
         @Override
-        public void setDefaultOptions(DiscordSerializerOptions defaultOptions) {
+        public void setDefaultOptions(@NotNull DiscordSerializerOptions defaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
     };
@@ -57,6 +57,7 @@ public class DiscordSerializer {
      */
     @Getter
     @Setter
+    @NotNull
     private DiscordSerializerOptions defaultOptions;
 
     /**
@@ -73,7 +74,7 @@ public class DiscordSerializer {
      * @see DiscordSerializerOptions#defaults()
      * @see DiscordSerializerOptions#DiscordSerializerOptions(boolean, boolean, Function, Function)
      */
-    public DiscordSerializer(@NonNull DiscordSerializerOptions defaultOptions) {
+    public DiscordSerializer(@NotNull DiscordSerializerOptions defaultOptions) {
         this.defaultOptions = defaultOptions;
     }
 
@@ -84,7 +85,7 @@ public class DiscordSerializer {
      * @param component The text component from a Minecraft chat message
      * @return Discord markdown formatted String
      */
-    public String serialize(@NonNull final Component component) {
+    public String serialize(@NotNull final Component component) {
         DiscordSerializerOptions options = getDefaultOptions();
         return serialize(component, options);
     }
@@ -98,7 +99,8 @@ public class DiscordSerializer {
      * @see DiscordSerializerOptions#defaults()
      * @see DiscordSerializerOptions#DiscordSerializerOptions(boolean, boolean, Function, Function)
      */
-    public String serialize(@NonNull final Component component, @NonNull final DiscordSerializerOptions serializerOptions) {
+    @NotNull
+    public String serialize(@NotNull final Component component, @NotNull final DiscordSerializerOptions serializerOptions) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Text> texts = getTexts(new LinkedList<>(), component, new Text(), serializerOptions);
         for (Text text : texts) {
@@ -150,8 +152,8 @@ public class DiscordSerializer {
         return length < 1 ? "" : stringBuilder.substring(0, length - 1);
     }
 
-    private LinkedList<Text> getTexts(@NonNull final List<Text> input, @NonNull final Component component,
-                                      @NonNull final Text text, @NonNull final DiscordSerializerOptions serializerOptions) {
+    private LinkedList<Text> getTexts(@NotNull final List<Text> input, @NotNull final Component component,
+                                      @NotNull final Text text, @NotNull final DiscordSerializerOptions serializerOptions) {
         LinkedList<Text> output = new LinkedList<>(input);
 
         String content;

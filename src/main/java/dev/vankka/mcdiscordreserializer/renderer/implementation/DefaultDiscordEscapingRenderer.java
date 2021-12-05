@@ -24,6 +24,8 @@ import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
 import dev.vankka.simpleast.core.node.TextNode;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -78,17 +80,17 @@ public class DefaultDiscordEscapingRenderer implements NodeRenderer<String> {
     }
 
     @Override
-    public String render(String renderTo, Node<Object> node,
-                                      MinecraftSerializerOptions<String> serializerOptions,
-                                      Function<Node<Object>, String> renderWithChildren) {
+    public String render(@Nullable String renderTo, @NotNull Node<Object> node,
+                         @NotNull MinecraftSerializerOptions<String> serializerOptions,
+                         @NotNull Function<Node<Object>, String> renderWithChildren) {
         return render(renderTo, node, false);
     }
 
 
     @Override
-    public String renderAfterChildren(String renderTo, Node<Object> node,
-                                                   MinecraftSerializerOptions<String> serializerOptions,
-                                                   Function<Node<Object>, String> renderWithChildren) {
+    public String renderAfterChildren(@Nullable String renderTo, @NotNull Node<Object> node,
+                                      @NotNull MinecraftSerializerOptions<String> serializerOptions,
+                                      @NotNull Function<Node<Object>, String> renderWithChildren) {
         return render(renderTo, node, true);
     }
 }

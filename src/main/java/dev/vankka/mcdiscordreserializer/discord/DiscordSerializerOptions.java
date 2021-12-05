@@ -21,6 +21,7 @@ package dev.vankka.mcdiscordreserializer.discord;
 import lombok.*;
 import net.kyori.adventure.text.KeybindComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -42,7 +43,7 @@ public final class DiscordSerializerOptions {
     }
 
     /**
-     * Makes messages format as [message content](url) when there is a open_url clickEvent (for embeds).
+     * Makes messages format as [message content](url) when there is an open_url clickEvent (for embeds).
      */
     private final boolean embedLinks;
 
@@ -54,12 +55,12 @@ public final class DiscordSerializerOptions {
     /**
      * The translator for {@link KeybindComponent}s.
      */
-    @NonNull
+    @NotNull
     private final Function<KeybindComponent, String> keybindProvider;
 
     /**
      * The translator for {@link TranslatableComponent}s.
      */
-    @NonNull
+    @NotNull
     private final Function<TranslatableComponent, String> translationProvider;
 }

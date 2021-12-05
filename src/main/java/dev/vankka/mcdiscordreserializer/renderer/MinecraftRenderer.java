@@ -24,10 +24,10 @@ import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.StyleNode;
 import dev.vankka.simpleast.core.node.TextNode;
-import lombok.NonNull;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +40,10 @@ import java.util.function.Function;
 public interface MinecraftRenderer extends MinecraftNodeRenderer {
 
     @Override
-    default Component render(Component component, Node<Object> node, MinecraftSerializerOptions<Component> serializerOptions,
-                             Function<Node<Object>, Component> renderWithChildren) {
+    default Component render(@NotNull Component component,
+                             @NotNull Node<Object> node,
+                             @NotNull MinecraftSerializerOptions<Component> serializerOptions,
+                             @NotNull Function<Node<Object>, Component> renderWithChildren) {
         if (node instanceof TextNode) {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
         } else if (node instanceof StyleNode) {
@@ -103,6 +105,9 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
                     default:
                         break;
                 }
+                if (component == null) {
+                    break;
+                }
             }
         }
 
@@ -116,7 +121,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the strikethrough {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component strikethrough(@NonNull Component part);
+    Component strikethrough(@NotNull Component part);
 
     /**
      * Renders the provided {@link Component} as underlined.
@@ -125,7 +130,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the underlined {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component underline(@NonNull Component part);
+    Component underline(@NotNull Component part);
 
     /**
      * Renders the provided {@link Component} as italics.
@@ -134,7 +139,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the italics {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component italics(@NonNull Component part);
+    Component italics(@NotNull Component part);
 
     /**
      * Renders the provided {@link Component} as bold.
@@ -143,7 +148,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the bold {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component bold(@NonNull Component part);
+    Component bold(@NotNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code string.
@@ -152,7 +157,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the code stringed {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component codeString(@NonNull Component part);
+    Component codeString(@NotNull Component part);
 
     /**
      * Renders the provided {@link Component} as a code block.
@@ -161,7 +166,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the code blocked {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component codeBlock(@NonNull Component part);
+    Component codeBlock(@NotNull Component part);
 
     /**
      * Renders the spoiler and appends it to the provided {@link Component}.
@@ -171,7 +176,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the spoiler'ed {@link Component} or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendSpoiler(@NonNull Component component, @NonNull Component content);
+    Component appendSpoiler(@NotNull Component component, @NotNull Component content);
 
     /**
      * Adds the required formatting for quotes to the provided {@link Component}.
@@ -181,7 +186,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the {@link Component} with the quote rendered or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendQuote(@NonNull Component component, @NonNull Component content);
+    Component appendQuote(@NotNull Component component, @NotNull Component content);
 
     /**
      * Renders a emote mention and appends it to the provided {@link Component}.
@@ -192,7 +197,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the {@link Component} with emote rendered or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendEmoteMention(@NonNull Component component, @NonNull String name, @NonNull String id);
+    Component appendEmoteMention(@NotNull Component component, @NotNull String name, @NotNull String id);
 
     /**
      * Renders a channel mention and appends it to the provided {@link Component}.
@@ -202,7 +207,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the {@link Component} with the channel mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendChannelMention(@NonNull Component component, @NonNull String id);
+    Component appendChannelMention(@NotNull Component component, @NotNull String id);
 
     /**
      * Renders a user mention and appends it to the provided {@link Component}.
@@ -212,7 +217,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the {@link Component} with the user mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendUserMention(@NonNull Component component, @NonNull String id);
+    Component appendUserMention(@NotNull Component component, @NotNull String id);
 
     /**
      * Renders a role mention and appends it to the provided {@link Component}.
@@ -222,5 +227,5 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @return the {@link Component} with the role mention rendered or {@code null} if this renderer does not process that kinds of styles
      */
     @Nullable
-    Component appendRoleMention(@NonNull Component component, @NonNull String id);
+    Component appendRoleMention(@NotNull Component component, @NotNull String id);
 }

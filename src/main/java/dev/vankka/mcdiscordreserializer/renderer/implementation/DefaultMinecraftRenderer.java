@@ -23,6 +23,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
@@ -46,64 +47,76 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
     }
 
     @Override
-    public Component strikethrough(Component component) {
+    @NotNull
+    public Component strikethrough(@NotNull Component component) {
         return component.decoration(TextDecoration.STRIKETHROUGH, true);
     }
 
     @Override
-    public Component underline(Component component) {
+    @NotNull
+    public Component underline(@NotNull Component component) {
         return component.decoration(TextDecoration.UNDERLINED, true);
     }
 
     @Override
-    public Component italics(Component component) {
+    @NotNull
+    public Component italics(@NotNull Component component) {
         return component.decoration(TextDecoration.ITALIC, true);
     }
 
     @Override
-    public Component bold(Component component) {
+    @NotNull
+    public Component bold(@NotNull Component component) {
         return component.decoration(TextDecoration.BOLD, true);
     }
 
     @Override
-    public Component codeString(Component component) {
+    @NotNull
+    public Component codeString(@NotNull Component component) {
         return component.color(NamedTextColor.DARK_GRAY);
     }
 
     @Override
-    public Component codeBlock(Component component) {
+    @NotNull
+    public Component codeBlock(@NotNull Component component) {
         return component.color(NamedTextColor.DARK_GRAY);
     }
 
     @Override
-    public Component appendSpoiler(Component component, Component content) {
+    @NotNull
+    public Component appendSpoiler(@NotNull Component component, @NotNull Component content) {
         return component.append(content.decoration(TextDecoration.OBFUSCATED, true)
                 .color(NamedTextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
     }
 
     @Override
-    public Component appendQuote(Component component, Component content) {
+    @NotNull
+    public Component appendQuote(@NotNull Component component, @NotNull Component content) {
         Component prefix = Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD);
         return Component.empty().append(prefix).append(component.replaceText(PATTERN_NEWLINE, builder -> builder.append(prefix)));
     }
 
     @Override
-    public Component appendEmoteMention(Component component, String name, String id) {
+    @NotNull
+    public Component appendEmoteMention(@NotNull Component component, @NotNull String name, @NotNull String id) {
         return component.append(Component.text(":" + name + ":"));
     }
 
     @Override
-    public Component appendChannelMention(Component component, String id) {
+    @NotNull
+    public Component appendChannelMention(@NotNull Component component, @NotNull String id) {
         return component.append(Component.text("<#" + id + ">"));
     }
 
     @Override
-    public Component appendUserMention(Component component, String id) {
+    @NotNull
+    public Component appendUserMention(@NotNull Component component, @NotNull String id) {
         return component.append(Component.text("<@" + id + ">"));
     }
 
     @Override
-    public Component appendRoleMention(Component component, String id) {
+    @NotNull
+    public Component appendRoleMention(@NotNull Component component, @NotNull String id) {
         return component.append(Component.text("<@&" + id + ">"));
     }
 }

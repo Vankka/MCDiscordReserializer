@@ -20,6 +20,8 @@ package dev.vankka.mcdiscordreserializer.renderer;
 
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
 import dev.vankka.simpleast.core.node.Node;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -39,8 +41,11 @@ public interface NodeRenderer<O> {
      * @param renderWithChildren a function to allow rendering a node recursively
      * @return the renderTo input with the node applied to it
      */
-    O render(O renderTo, Node<Object> node, MinecraftSerializerOptions<O> serializerOptions,
-             Function<Node<Object>, O> renderWithChildren);
+    @Nullable
+    O render(@NotNull O renderTo,
+             @NotNull Node<Object> node,
+             @NotNull MinecraftSerializerOptions<O> serializerOptions,
+             @NotNull Function<Node<Object>, O> renderWithChildren);
 
     /**
      * Renders a given {@link dev.vankka.simpleast.core.node.Node} after children for it have been processed.
@@ -52,9 +57,11 @@ public interface NodeRenderer<O> {
      * @return the renderTo input with the node applied to it
      * @see #render(Object, dev.vankka.simpleast.core.node.Node, dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions, java.util.function.Function)
      */
-    default O renderAfterChildren(O renderTo, Node<Object> node,
-                                  MinecraftSerializerOptions<O> serializerOptions,
-                                  Function<Node<Object>, O> renderWithChildren) {
+    @Nullable
+    default O renderAfterChildren(@Nullable O renderTo,
+                                  @NotNull Node<Object> node,
+                                  @NotNull MinecraftSerializerOptions<O> serializerOptions,
+                                  @NotNull Function<Node<Object>, O> renderWithChildren) {
         return null;
     }
 }
