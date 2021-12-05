@@ -59,6 +59,7 @@ public class MinecraftSerializer {
         }
 
         @Override
+        @Deprecated
         public void setMarkdownDefaultOptions(@NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
@@ -81,6 +82,7 @@ public class MinecraftSerializer {
      */
     @Getter
     @Setter
+    @Deprecated
     private MinecraftSerializerOptions<String> markdownDefaultOptions;
 
     /**
@@ -88,7 +90,7 @@ public class MinecraftSerializer {
      * and {@link MinecraftSerializerOptions#escapeDefaults()} as defaults.
      */
     public MinecraftSerializer() {
-        this(MinecraftSerializerOptions.defaults(), MinecraftSerializerOptions.escapeDefaults());
+        this(MinecraftSerializerOptions.defaults());
     }
 
     /**
@@ -98,6 +100,20 @@ public class MinecraftSerializer {
      * @see MinecraftSerializerOptions#defaults()
      * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
      */
+    public MinecraftSerializer(@NotNull MinecraftSerializerOptions<Component> defaultOptions) {
+        this.defaultOptions = defaultOptions;
+        this.markdownDefaultOptions = MinecraftSerializerOptions.escapeDefaults();
+    }
+
+    /**
+     * Constructor for creating a serializer, with the specified {@link MinecraftSerializerOptions} as defaults.
+     *
+     * @param defaultOptions the default serializer options (can be overridden on serialize)
+     * @see MinecraftSerializerOptions#defaults()
+     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
+     * @deprecated The escape markdown feature was implemented poorly and will be removed in a future version
+     */
+    @Deprecated
     public MinecraftSerializer(@NotNull MinecraftSerializerOptions<Component> defaultOptions,
                                @NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
         this.defaultOptions = defaultOptions;
@@ -147,7 +163,9 @@ public class MinecraftSerializer {
      * @return the Discord markdown message with markdown escaped
      * @see MinecraftSerializerOptions#escapeDefaults()
      * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String, MinecraftSerializerOptions)
+     * @deprecated This feature was implemented poorly and will be removed in a future version
      */
+    @Deprecated
     public String escapeMarkdown(@NotNull final String discordMessage) {
         return escapeMarkdown(discordMessage, getMarkdownDefaultOptions());
     }
@@ -160,7 +178,9 @@ public class MinecraftSerializer {
      * @return the Discord markdown message with markdown escaped
      * @see MinecraftSerializerOptions#escapeDefaults()
      * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String)
+     * @deprecated This feature was implemented poorly and will be removed in a future version
      */
+    @Deprecated
     public String escapeMarkdown(@NotNull final String discordMessage, @NotNull final MinecraftSerializerOptions<String> serializerOptions) {
         String output = "";
 

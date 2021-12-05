@@ -57,6 +57,7 @@ public class MinecraftSerializerOptions<O> {
      * Creates the default {@link MinecraftSerializerOptions} for escaping markdown.
      * @return the default {@link MinecraftSerializerOptions}.
      */
+    @Deprecated
     public static MinecraftSerializerOptions<String> escapeDefaults() {
         List<Rule<Object, Node<Object>, Object>> rules = new ArrayList<>();
         rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
