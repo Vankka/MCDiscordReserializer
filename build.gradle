@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'dev.vankka'
-version '4.3.0-SNAPSHOT'
+version '4.3.0'
 
 sourceCompatibility = 1.8
 
