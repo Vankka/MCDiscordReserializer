@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018-2021 Vankka
+ * Copyright (C) 2018-2022 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,11 +124,12 @@ public class DiscordSerializer {
             }
 
             if (serializerOptions.isEscapeMarkdown()) {
-                content = content.replace("(?<!\\\\)(?:\\\\\\\\)*\\*", "\\*")
-                        .replace("(?<!\\\\)(?:\\\\\\\\)*~", "\\~")
-                        .replace("(?<!\\\\)(?:\\\\\\\\)*_", "\\_")
-                        .replace("(?<!\\\\)(?:\\\\\\\\)*`", "\\`")
-                        .replace("(?<!\\\\)(?:\\\\\\\\)*\\|", "\\|");
+                content = content
+                        .replace("*", "\\*")
+                        .replace("~", "\\~")
+                        .replace("_", "\\_")
+                        .replace("`", "\\`")
+                        .replace("|", "\\|");
             }
 
             stringBuilder.append(content);

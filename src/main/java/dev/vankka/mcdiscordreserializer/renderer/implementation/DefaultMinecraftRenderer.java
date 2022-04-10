@@ -1,6 +1,6 @@
 /*
  * MCDiscordReserializer: A library for transcoding between Minecraft and Discord.
- * Copyright (C) 2018-2021 Vankka
+ * Copyright (C) 2018-2022 Vankka
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@ package dev.vankka.mcdiscordreserializer.renderer.implementation;
 
 import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -44,6 +46,11 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
      * @see #INSTANCE
      */
     public DefaultMinecraftRenderer() {
+    }
+
+    @Override
+    public Component link(@NotNull Component part, String link) {
+        return part.clickEvent(ClickEvent.openUrl(link));
     }
 
     @Override
@@ -89,11 +96,14 @@ public class DefaultMinecraftRenderer implements MinecraftRenderer {
                 .color(NamedTextColor.DARK_GRAY).hoverEvent(HoverEvent.showText(content)));
     }
 
+    private static final Component QUOTE_PREFIX = Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD);
+    private static final TextReplacementConfig QUOTE_REPLACEMENT = TextReplacementConfig.builder()
+            .match(PATTERN_NEWLINE).replacement(builder -> builder.append(QUOTE_PREFIX)).build();
+
     @Override
     @NotNull
     public Component appendQuote(@NotNull Component component, @NotNull Component content) {
-        Component prefix = Component.text("| ", NamedTextColor.DARK_GRAY, TextDecoration.BOLD);
-        return Component.empty().append(prefix).append(component.replaceText(PATTERN_NEWLINE, builder -> builder.append(prefix)));
+        return Component.empty().append(QUOTE_PREFIX).append(component.replaceText(QUOTE_REPLACEMENT));
     }
 
     @Override
