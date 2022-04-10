@@ -28,7 +28,7 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
     <dependency>
         <groupId>dev.vankka</groupId>
         <artifactId>mcdiscordreserializer</artifactId>
-        <version>4.2.2</version>
+        <version>4.3.0</version>
     </dependency>
 </dependencies>
 ```
@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.vankka:mcdiscordreserializer:4.2.2'
+    implementation 'dev.vankka:mcdiscordreserializer:4.3.0'
 }
 ```
 
