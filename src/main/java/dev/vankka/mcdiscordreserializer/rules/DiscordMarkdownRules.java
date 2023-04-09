@@ -32,24 +32,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Markdown rules for Discord formatting.
+ * Markdown rules for Discord formatting. The patterns here attempt to follow how the Discord client behaves as closely as possible.
  */
 public final class DiscordMarkdownRules {
 
-    private DiscordMarkdownRules() {
-    }
+    private DiscordMarkdownRules() {}
 
     private static final Pattern PATTERN_EMOTE_MENTION = Pattern.compile("^<a?:(\\w+):(\\d+)>");
     private static final Pattern PATTERN_CHANNEL_MENTION = Pattern.compile("^<#(\\d+)>");
     private static final Pattern PATTERN_USER_MENTION = Pattern.compile("^<@!?(\\d+)>");
     private static final Pattern PATTERN_ROLE_MENTION = Pattern.compile("^<@&(\\d+)>");
 
-    private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|([\\s\\S]+?)\\|\\|");
+    private static final Pattern PATTERN_BOLD = Pattern.compile("^\\*\\*(.+?)\\*\\*(?!\\*)");
+    private static final Pattern PATTERN_UNDERLINE = Pattern.compile("^__(.+?)__(?!_)");
+    private static final Pattern PATTERN_STRIKETHRU = Pattern.compile("^~~(.+?)~~");
+    private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|(.+?)\\|\\|");
     private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
     private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.DOTALL);
-    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)[\\n ])?\\n*(?:(.+?))\\n*```");
+    private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)\\n)?\\n*(.+?)\\n*```");
 
-    // for quotes
+    private static final Pattern PATTERN_ITALICS = Pattern.compile(
+            // only match _s surrounding words.
+            "^\\b_" + "((?:__|\\\\[\\s\\S]|[^\\\\_])+?)_" + "\\b" +
+                    "|" +
+                    // Or match *s that are followed by a non-space:
+                    "^\\*(?=\\S)(" +
+                    // Match any of:
+                    //  - `**`: so that bolds inside italics don't close the italics
+                    //  - non-whitespace, non-* characters and then 0-2 whitespaces
+                    "(?:\\*\\*|[^\\s*]\\s{0,2})+?" +
+                    // followed by *, then non-*
+                    ")\\*(?!\\*)"
+    );
+
+    // patched version of SimpleMarkdownRules.createText for quotes
     private static final Pattern PATTERN_TEXT = Pattern.compile("^[\\s\\S]+?(?=[^0-9A-Za-z\\s\\u00c0-\\uffff>]|\\n| {2,}\\n|\\w+:\\S|$)");
 
     /**
@@ -94,6 +110,60 @@ public final class DiscordMarkdownRules {
      */
     public static <R, S> Rule<R, Node<R>, S> createRoleMentionRule() {
         return createSimpleMentionRule(PATTERN_ROLE_MENTION, TextStyle.Type.MENTION_ROLE);
+    }
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's bold.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createBoldRule() {
+        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_BOLD, new TextStyle(TextStyle.Type.BOLD));
+    }
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's underline.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createUnderlineRule() {
+        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_UNDERLINE, new TextStyle(TextStyle.Type.UNDERLINE));
+    }
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's italics.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createItalicsRule() {
+        return new Rule<R, Node<R>, S>(PATTERN_ITALICS) {
+
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                int startIndex;
+                int endIndex;
+                String asteriskMatch = matcher.group(2);
+                boolean asterisk = asteriskMatch != null && asteriskMatch.length() > 0;
+                if (asterisk) {
+                    startIndex = matcher.start(2);
+                    endIndex = matcher.end(2);
+                } else {
+                    startIndex = matcher.start(1);
+                    endIndex = matcher.end(1);
+                }
+
+                Map<String, String> extra = new HashMap<>();
+                extra.put("asterisk", String.valueOf(asterisk));
+
+                List<TextStyle> styles = new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.ITALICS, extra)));
+                return ParseSpec.createNonterminal(new StyleNode<>(styles), state, startIndex, endIndex);
+            }
+        };
+    }
+
+    /**
+     * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's strikethrough.
+     * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
+     */
+    public static <R, S> Rule<R, Node<R>, S> createStrikethruRule() {
+        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_STRIKETHRU, new TextStyle(TextStyle.Type.STRIKETHROUGH));
     }
 
     /**
@@ -254,6 +324,22 @@ public final class DiscordMarkdownRules {
     }
 
     /**
+     * Creates basic markdown rules.
+     * @return escape, link, newline, bold, underline, italics and strikethru rules.
+     */
+    public static <R> List<Rule<R, Node<R>, Object>> createSimpleMarkdownRules() {
+        List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
+        rules.add(SimpleMarkdownRules.createEscapeRule());
+        rules.add(SimpleMarkdownRules.createLinkRule());
+        rules.add(SimpleMarkdownRules.createNewlineRule());
+        rules.add(createBoldRule());
+        rules.add(createUnderlineRule());
+        rules.add(createItalicsRule());
+        rules.add(createStrikethruRule());
+        return rules;
+    }
+
+    /**
      * Creates a set of rules for parsing Discord messages.
      *
      * @param includeText Should the text rule be included?
@@ -261,7 +347,7 @@ public final class DiscordMarkdownRules {
      */
     public static <R> List<Rule<R, Node<R>, Object>> createAllRulesForDiscord(boolean includeText) {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
-        rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
+        rules.addAll(createSimpleMarkdownRules());
         rules.addAll(createDiscordMarkdownRules());
         if (includeText) {
             rules.add(createSpecialTextRule());
