@@ -67,6 +67,7 @@ public final class DiscordMarkdownRules {
 
     // patched version of SimpleMarkdownRules.createText for quotes
     private static final Pattern PATTERN_TEXT = Pattern.compile("^[\\s\\S]+?(?=[^0-9A-Za-z\\s\\u00c0-\\uffff>]|\\n| {2,}\\n|\\w+:\\S|$)");
+    private static final Pattern PATTERN_LINK = Pattern.compile("^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]+\\.[-a-zA-Z0-9+&@#/%=~_|]+)");
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
@@ -273,6 +274,26 @@ public final class DiscordMarkdownRules {
     }
 
     /**
+     * Creates a link rule, for appending the url instead of styling text as an url.
+     * @see dev.vankka.simpleast.core.simple.SimpleMarkdownRules#createLinkRule()
+     */
+    public static <R, S> Rule<R, Node<R>, S> createLinkRule() {
+        return new Rule<R, Node<R>, S>(PATTERN_LINK) {
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                String link = matcher.group(1);
+                Map<String, String> extra = new HashMap<>();
+                extra.put("link", link);
+
+                return ParseSpec.createTerminal(new StyleNode<>(
+                        new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.LINK, extra)))),
+                        state
+                );
+            }
+        };
+    }
+
+    /**
      * Creates all the mention rules.
      *
      * @see #createEmoteMentionRule()
@@ -330,7 +351,7 @@ public final class DiscordMarkdownRules {
     public static <R> List<Rule<R, Node<R>, Object>> createSimpleMarkdownRules() {
         List<Rule<R, Node<R>, Object>> rules = new ArrayList<>();
         rules.add(SimpleMarkdownRules.createEscapeRule());
-        rules.add(SimpleMarkdownRules.createLinkRule());
+        rules.add(createLinkRule());
         rules.add(SimpleMarkdownRules.createNewlineRule());
         rules.add(createBoldRule());
         rules.add(createUnderlineRule());

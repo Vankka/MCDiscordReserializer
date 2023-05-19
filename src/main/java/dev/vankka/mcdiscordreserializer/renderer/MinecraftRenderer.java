@@ -51,7 +51,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
             for (TextStyle style : styles) {
                 switch (style.getType()) {
                     case LINK:
-                        component = link(component, style.getExtra().get("link"));
+                        component = appendLink(component, style.getExtra().get("link"));
                         break;
                     case STRIKETHROUGH:
                         component = strikethrough(component);
@@ -123,7 +123,25 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * @param part the {@link net.kyori.adventure.text.Component} to render with a link.
      * @return the {@link net.kyori.adventure.text.Component} with the link or {@code null} if this renderer does not process that kind of style
      */
+    @Deprecated
     Component link(@NotNull Component part, String link);
+
+    /**
+     * Renders the link and appends it to the provided {@link Component}.
+     *
+     * @param component the {@link Component} to render the link to
+     * @param link      the link
+     * @return the {@link Component} with the link or {@code null} if this renderer does not process that kind of style
+     */
+    default Component appendLink(@NotNull Component component, String link) {
+        Component linkComponent = Component.empty();
+        linkComponent = link(linkComponent, link);
+        if (linkComponent == null) {
+            return null;
+        }
+
+        return component.append(linkComponent.append(Component.text(link)));
+    }
 
     /**
      * Renders the provided {@link Component} as strikethrough.
