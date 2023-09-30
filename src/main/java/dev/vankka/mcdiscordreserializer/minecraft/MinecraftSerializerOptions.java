@@ -24,8 +24,6 @@ import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.parser.Parser;
 import dev.vankka.simpleast.core.parser.Rule;
-import dev.vankka.simpleast.core.simple.SimpleMarkdownRules;
-import lombok.*;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,8 +36,6 @@ import java.util.List;
  * Options for {@link MinecraftSerializer}s.
  * @param <O> the type of the result produced with the renderers
  */
-@RequiredArgsConstructor
-@ToString
 public class MinecraftSerializerOptions<O> {
 
     /**
@@ -47,32 +43,89 @@ public class MinecraftSerializerOptions<O> {
      * @return the default {@link MinecraftSerializerOptions}.
      */
     public static MinecraftSerializerOptions<Component> defaults() {
-        return new MinecraftSerializerOptions<>(new Parser<>(),
+        return new MinecraftSerializerOptions<>(
+                new Parser<>(),
                 DiscordMarkdownRules.createAllRulesForDiscord(true),
                 Collections.emptyList(),
-                false);
+                false
+        );
     }
 
     /**
-     * Creates the default {@link MinecraftSerializerOptions} for escaping markdown.
-     * @return the default {@link MinecraftSerializerOptions}.
+     * The SimpleAST {@link Parser} to use to generate the abstract syntax tree.
      */
-    @Deprecated
-    public static MinecraftSerializerOptions<String> escapeDefaults() {
-        List<Rule<Object, Node<Object>, Object>> rules = new ArrayList<>();
-        rules.addAll(SimpleMarkdownRules.createSimpleMarkdownRules(false));
-        rules.addAll(DiscordMarkdownRules.createStyleRules());
-        rules.add(SimpleMarkdownRules.createTextRule());
+    @NotNull
+    private final Parser<Object, Node<Object>, Object> parser;
 
-        return new MinecraftSerializerOptions<>(new Parser<>(),
-                rules,
-                Collections.emptyList(),
-                false);
+    /**
+     * The {@link dev.vankka.simpleast.core.parser.Rule Rules} for the {@link Parser},
+     * {@code null} to use the {@link Parser Parsers} default rules.
+     */
+    @Nullable
+    private final List<Rule<Object, Node<Object>, Object>> rules;
+
+    /**
+     * The {@link dev.vankka.mcdiscordreserializer.renderer.NodeRenderer}s to use to render formatting for Minecraft.
+     */
+    @NotNull
+    private final List<NodeRenderer<O>> renderers;
+
+    /**
+     * Weather or not to use debug logging for the {@link Parser}.
+     */
+    private final boolean debuggingEnabled;
+
+    public MinecraftSerializerOptions(
+            Parser<Object, Node<Object>, Object> parser,
+            List<Rule<Object, Node<Object>, Object>> rules,
+            List<NodeRenderer<O>> renderers,
+            boolean debuggingEnabled
+    ) {
+        this.parser = parser;
+        this.rules = Collections.unmodifiableList(rules);
+        this.renderers = Collections.unmodifiableList(renderers);
+        this.debuggingEnabled = debuggingEnabled;
     }
 
     /**
-     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
-     * with the given renderer added.
+     * Gets the parser for these options.
+     * @return the parser
+     */
+    public @NotNull Parser<Object, Node<Object>, Object> getParser() {
+        return parser;
+    }
+
+    /**
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * based on this instance with parser set to the provided value.
+     * @param parser a parser for parsing a string into abstract syntax tree
+     * @return the new instance
+     */
+    public MinecraftSerializerOptions<O> withParser(@NotNull Parser<Object, Node<Object>, Object> parser) {
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
+    }
+
+    /**
+     * Gets the rules for creating the abstract syntax tree to Minecraft for these options.
+     * @return the parser
+     */
+    public @Nullable List<Rule<Object, Node<Object>, Object>> getRules() {
+        return rules;
+    }
+
+    /**
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * based on this instance with parser set to the provided value.
+     * @param rules the rules for creating the abstract syntax tree
+     * @return the new instance
+     */
+    public MinecraftSerializerOptions<O> withRules(@NotNull List<Rule<Object, Node<Object>, Object>> rules) {
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
+    }
+
+    /**
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * based on this instance with the given renderer added.
      *
      * @param renderer the renderer to add
      * @return the new instance of options
@@ -94,8 +147,8 @@ public class MinecraftSerializerOptions<O> {
     }
 
     /**
-     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
-     * with the given renderer added at the given index, keep in mind a default renderer is always present.
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * based on this instance with the given renderer added at the given index, keep in mind a default renderer is always present.
      *
      * @param renderer the renderer to add
      * @param index the index to add the renderer at
@@ -118,8 +171,8 @@ public class MinecraftSerializerOptions<O> {
     }
 
     /**
-     * Creates an instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
-     * without the given renderer.
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
+     * based on this instance without the given renderer.
      *
      * @param renderer the renderer to remove
      * @return the new instance of options
@@ -140,36 +193,24 @@ public class MinecraftSerializerOptions<O> {
      */
     @NotNull
     public List<NodeRenderer<O>> getRenderers() {
-        return Collections.unmodifiableList(renderers);
+        return renderers;
     }
 
-    /**
-     * The SimpleAST {@link Parser} to use to generate the abstract syntax tree.
-     */
-    @With
-    @Getter
-    @NotNull
-    private final Parser<Object, Node<Object>, Object> parser;
+    public boolean isDebuggingEnabled() {
+        return debuggingEnabled;
+    }
 
-    /**
-     * The {@link dev.vankka.simpleast.core.parser.Rule Rules} for the {@link Parser},
-     * {@code null} to use the {@link Parser Parsers} default rules.
-     */
-    @With
-    @Getter
-    @Nullable
-    private final List<Rule<Object, Node<Object>, Object>> rules;
+    public MinecraftSerializerOptions<O> withDebuggingEnabled(boolean debuggingEnabled) {
+        return new MinecraftSerializerOptions<>(parser, rules, renderers, debuggingEnabled);
+    }
 
-    /**
-     * The {@link dev.vankka.mcdiscordreserializer.renderer.NodeRenderer}s to use to render formatting for Minecraft.
-     */
-    @NotNull
-    private final List<NodeRenderer<O>> renderers;
-
-    /**
-     * Weather or not to use debug logging for the {@link Parser}.
-     */
-    @With
-    @Getter
-    private final boolean debuggingEnabled;
+    @Override
+    public String toString() {
+        return "MinecraftSerializerOptions{" +
+                "parser=" + parser +
+                ", rules=" + rules +
+                ", renderers=" + renderers +
+                ", debuggingEnabled=" + debuggingEnabled +
+                '}';
+    }
 }

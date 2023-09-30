@@ -20,12 +20,9 @@ package dev.vankka.mcdiscordreserializer.minecraft;
 
 import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
-import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultDiscordEscapingRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
-import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,20 +44,13 @@ public class MinecraftSerializer {
 
     /**
      * Default instance of the MinecraftSerializer, incase that's all you need.
-     * Using {@link MinecraftSerializer#setDefaultOptions(MinecraftSerializerOptions)} and
-     * {@link MinecraftSerializer#setMarkdownDefaultOptions(MinecraftSerializerOptions)} are not allowed.
+     * Using {@link MinecraftSerializer#setDefaultOptions(MinecraftSerializerOptions)} is not allowed.
      */
     @NotNull
     public static final MinecraftSerializer INSTANCE = new MinecraftSerializer() {
 
         @Override
         public void setDefaultOptions(@NotNull MinecraftSerializerOptions<Component> defaultOptions) {
-            throw new UnsupportedOperationException("Cannot modify public instance");
-        }
-
-        @Override
-        @Deprecated
-        public void setMarkdownDefaultOptions(@NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
             throw new UnsupportedOperationException("Cannot modify public instance");
         }
     };
@@ -70,24 +60,11 @@ public class MinecraftSerializer {
      * to use for this serializer.
      * @see #serialize(String)
      */
-    @Getter
-    @Setter
     @NotNull
     private MinecraftSerializerOptions<Component> defaultOptions;
 
     /**
-     * The default {@link dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions}
-     * to use for escaping markdown.
-     * @see #escapeMarkdown(String, MinecraftSerializerOptions)
-     */
-    @Getter
-    @Setter
-    @Deprecated
-    private MinecraftSerializerOptions<String> markdownDefaultOptions;
-
-    /**
-     * Constructor for creating a serializer, with {@link MinecraftSerializerOptions#defaults()}
-     * and {@link MinecraftSerializerOptions#escapeDefaults()} as defaults.
+     * Constructor for creating a serializer, with {@link MinecraftSerializerOptions#defaults()} as the default.
      */
     public MinecraftSerializer() {
         this(MinecraftSerializerOptions.defaults());
@@ -102,22 +79,14 @@ public class MinecraftSerializer {
      */
     public MinecraftSerializer(@NotNull MinecraftSerializerOptions<Component> defaultOptions) {
         this.defaultOptions = defaultOptions;
-        this.markdownDefaultOptions = MinecraftSerializerOptions.escapeDefaults();
     }
 
-    /**
-     * Constructor for creating a serializer, with the specified {@link MinecraftSerializerOptions} as defaults.
-     *
-     * @param defaultOptions the default serializer options (can be overridden on serialize)
-     * @see MinecraftSerializerOptions#defaults()
-     * @see MinecraftSerializerOptions#MinecraftSerializerOptions(dev.vankka.simpleast.core.parser.Parser, List, List, boolean)
-     * @deprecated The escape markdown feature was implemented poorly and will be removed in a future version
-     */
-    @Deprecated
-    public MinecraftSerializer(@NotNull MinecraftSerializerOptions<Component> defaultOptions,
-                               @NotNull MinecraftSerializerOptions<String> markdownDefaultOptions) {
+    public @NotNull MinecraftSerializerOptions<Component> getDefaultOptions() {
+        return defaultOptions;
+    }
+
+    public void setDefaultOptions(@NotNull MinecraftSerializerOptions<Component> defaultOptions) {
         this.defaultOptions = defaultOptions;
-        this.markdownDefaultOptions = markdownDefaultOptions;
     }
 
     /**
@@ -156,43 +125,6 @@ public class MinecraftSerializer {
         return Component.empty().children(components);
     }
 
-    /**
-     * Escapes the given Discord message of Discord markdown. Should include the entire message (not just a part) to be effective.
-     *
-     * @param discordMessage    the Discord message
-     * @return the Discord markdown message with markdown escaped
-     * @see MinecraftSerializerOptions#escapeDefaults()
-     * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String, MinecraftSerializerOptions)
-     * @deprecated This feature was implemented poorly and will be removed in a future version
-     */
-    @Deprecated
-    public String escapeMarkdown(@NotNull final String discordMessage) {
-        return escapeMarkdown(discordMessage, getMarkdownDefaultOptions());
-    }
-
-    /**
-     * Escapes the given Discord message of Discord markdown. Should include the entire message (not just a part) to be effective.
-     *
-     * @param discordMessage    the Discord message
-     * @param serializerOptions options for this escape
-     * @return the Discord markdown message with markdown escaped
-     * @see MinecraftSerializerOptions#escapeDefaults()
-     * @see dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializer#escapeMarkdown(String)
-     * @deprecated This feature was implemented poorly and will be removed in a future version
-     */
-    @Deprecated
-    public String escapeMarkdown(@NotNull final String discordMessage, @NotNull final MinecraftSerializerOptions<String> serializerOptions) {
-        String output = "";
-
-        List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
-        nodes = flattenTextNodes(nodes); // reduce the amount of single character nodes caused by special characters
-        for (Node<Object> node : nodes) {
-            output = addChild(node, output, serializerOptions);
-        }
-
-        return output;
-    }
-
     private Component addChild(final Node<Object> node, final Component styleNode,
                                final MinecraftSerializerOptions<Component> serializerOptions) {
         Component component = Component.empty().mergeStyle(styleNode);
@@ -224,39 +156,6 @@ public class MinecraftSerializer {
         }
 
         Component newOutput = render.renderAfterChildren(output, node, serializerOptions, renderWithChildren);
-        if (newOutput != null) {
-            output = newOutput;
-        }
-
-        return output;
-    }
-
-    private String addChild(final Node<Object> node, final String input,
-                          final MinecraftSerializerOptions<String> serializerOptions) {
-        Function<Node<Object>, String> renderWithChildren = otherNode -> addChild(otherNode, input, serializerOptions);
-
-        String output = null;
-        NodeRenderer<String> render = null;
-        for (NodeRenderer<String> renderer : serializerOptions.getRenderers()) {
-            output = renderer.render(output, node, serializerOptions, renderWithChildren);
-            if (output != null) {
-                render = renderer;
-                break;
-            }
-        }
-        if (output == null) {
-            render = DefaultDiscordEscapingRenderer.INSTANCE;
-            output = render.render(input, node, serializerOptions, renderWithChildren);
-        }
-
-        Collection<Node<Object>> children = node.getChildren();
-        if (children != null) {
-            for (Node<Object> child : children) {
-                output = addChild(child, output, serializerOptions);
-            }
-        }
-
-        String newOutput = render.renderAfterChildren(output, node, serializerOptions, renderWithChildren);
         if (newOutput != null) {
             output = newOutput;
         }

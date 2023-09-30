@@ -18,9 +18,6 @@
 
 package dev.vankka.mcdiscordreserializer.discord;
 
-import dev.vankka.mcdiscordreserializer.text.Text;
-import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -28,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -55,8 +53,6 @@ public class DiscordSerializer {
     /**
      * The default {@link DiscordSerializerOptions} to use for this serializer.
      */
-    @Getter
-    @Setter
     @NotNull
     private DiscordSerializerOptions defaultOptions;
 
@@ -75,6 +71,22 @@ public class DiscordSerializer {
      * @see DiscordSerializerOptions#DiscordSerializerOptions(boolean, boolean, Function, Function)
      */
     public DiscordSerializer(@NotNull DiscordSerializerOptions defaultOptions) {
+        this.defaultOptions = defaultOptions;
+    }
+
+    /**
+     * Gets the default options for this serializer.
+     * @return the default options for this serializer
+     */
+    public @NotNull DiscordSerializerOptions getDefaultOptions() {
+        return defaultOptions;
+    }
+
+    /**
+     * Sets the default options for this serializer.
+     * @param defaultOptions the new default options
+     */
+    public void setDefaultOptions(@NotNull DiscordSerializerOptions defaultOptions) {
         this.defaultOptions = defaultOptions;
     }
 
@@ -214,4 +226,101 @@ public class DiscordSerializer {
 
         return output;
     }
+
+    private static class Text {
+
+        private String content;
+        private boolean bold;
+        private boolean strikethrough;
+        private boolean underline;
+        private boolean italic;
+
+        public Text() {}
+
+        private Text(String content, boolean bold, boolean strikethrough, boolean underline, boolean italic) {
+            this.content = content;
+            this.bold = bold;
+            this.strikethrough = strikethrough;
+            this.underline = underline;
+            this.italic = italic;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public boolean isBold() {
+            return bold;
+        }
+
+        public void setBold(boolean bold) {
+            this.bold = bold;
+        }
+
+        public boolean isStrikethrough() {
+            return strikethrough;
+        }
+
+        public void setStrikethrough(boolean strikethrough) {
+            this.strikethrough = strikethrough;
+        }
+
+        public boolean isUnderline() {
+            return underline;
+        }
+
+        public void setUnderline(boolean underline) {
+            this.underline = underline;
+        }
+
+        public boolean isItalic() {
+            return italic;
+        }
+
+        public void setItalic(boolean italic) {
+            this.italic = italic;
+        }
+
+        /**
+         * Checks if the formatting matches between this and another Text object.
+         *
+         * @param other The other Text object.
+         * @return true if the formatting matches the other Text object.
+         */
+        public boolean formattingMatches(Text other) {
+            return other != null
+                    && bold == other.bold
+                    && strikethrough == other.strikethrough
+                    && underline == other.underline
+                    && italic == other.italic;
+        }
+
+        @SuppressWarnings("MethodDoesntCallSuperMethod")
+        @Override
+        public Text clone() {
+            return new Text(content, bold, strikethrough, underline, italic);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Text text = (Text) o;
+            return bold == text.bold
+                    && strikethrough == text.strikethrough
+                    && underline == text.underline
+                    && italic == text.italic
+                    && Objects.equals(content, text.content);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(content, bold, strikethrough, underline, italic);
+        }
+    }
+
 }
