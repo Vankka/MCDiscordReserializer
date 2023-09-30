@@ -18,8 +18,8 @@
 
 package dev.vankka.mcdiscordreserializer.discord;
 
-import net.kyori.adventure.text.KeybindComponent;
-import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -33,31 +33,25 @@ public final class DiscordSerializerOptions {
      * Creates the default {@link DiscordSerializerOptions}.
      * @return the default {@link DiscordSerializerOptions}.
      */
+    @SuppressWarnings("deprecation")
     public static DiscordSerializerOptions defaults() {
-        return new DiscordSerializerOptions(false, true, KeybindComponent::keybind, TranslatableComponent::key);
+        return new DiscordSerializerOptions(
+                false,
+                true,
+                ComponentFlattener.builder()
+                        .mapper(TextComponent.class, TextComponent::content)
+                        .mapper(ScoreComponent.class, ScoreComponent::value)
+                        .mapper(SelectorComponent.class, SelectorComponent::pattern)
+                        .build()
+        );
     }
 
-    /**
-     * Makes messages format as [message content](url) when there is an open_url clickEvent (for embeds).
-     */
-    private final boolean embedLinks;
+    private final boolean maskedLinks;
 
-    /**
-     * Escapes Discord formatting codes in the Minecraft message content.
-     */
     private final boolean escapeMarkdown;
 
-    /**
-     * The translator for {@link KeybindComponent}s.
-     */
     @NotNull
-    private final Function<KeybindComponent, String> keybindProvider;
-
-    /**
-     * The translator for {@link TranslatableComponent}s.
-     */
-    @NotNull
-    private final Function<TranslatableComponent, String> translationProvider;
+    private final ComponentFlattener flattener;
 
     public DiscordSerializerOptions(
             boolean embedLinks,
@@ -65,28 +59,32 @@ public final class DiscordSerializerOptions {
             @NotNull Function<KeybindComponent, String> keybindProvider,
             @NotNull Function<TranslatableComponent, String> translationProvider
     ) {
-        this.embedLinks = embedLinks;
+        this(
+                embedLinks,
+                escapeMarkdown,
+                ComponentFlattener.builder()
+                        .mapper(KeybindComponent.class, keybindProvider)
+                        .mapper(TranslatableComponent.class, translationProvider)
+                        .build()
+        );
+    }
+
+    public DiscordSerializerOptions(
+            boolean maskedLinks,
+            boolean escapeMarkdown,
+            @NotNull ComponentFlattener flattener
+    ) {
+        this.maskedLinks = maskedLinks;
         this.escapeMarkdown = escapeMarkdown;
-        this.keybindProvider = keybindProvider;
-        this.translationProvider = translationProvider;
+        this.flattener = flattener;
     }
 
-    /**
-     * If links should be embedded.
-     * @return if these options have embedded links enabled
-     */
-    public boolean isEmbedLinks() {
-        return embedLinks;
+    public boolean isMaskedLinks() {
+        return maskedLinks;
     }
 
-    /**
-     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.discord.DiscordSerializerOptions}
-     * based on this instance with embedLinks set to the provided value.
-     * @param embedLinks {@code true} to use masked links for open_url components
-     * @return the new instance
-     */
-    public DiscordSerializerOptions withEmbedLinks(boolean embedLinks) {
-        return new DiscordSerializerOptions(embedLinks, escapeMarkdown, keybindProvider, translationProvider);
+    public DiscordSerializerOptions withMaskedLinks(boolean maskedLinks) {
+        return new DiscordSerializerOptions(maskedLinks, escapeMarkdown, flattener);
     }
 
     /**
@@ -104,15 +102,47 @@ public final class DiscordSerializerOptions {
      * @return the new instance
      */
     public DiscordSerializerOptions withEscapeMarkdown(boolean escapeMarkdown) {
-        return new DiscordSerializerOptions(embedLinks, escapeMarkdown, keybindProvider, translationProvider);
+        return new DiscordSerializerOptions(maskedLinks, escapeMarkdown, flattener);
+    }
+
+    public @NotNull ComponentFlattener getFlattener() {
+        return flattener;
+    }
+
+    public DiscordSerializerOptions withFlattener(ComponentFlattener flattener) {
+        return new DiscordSerializerOptions(maskedLinks, escapeMarkdown, flattener);
+    }
+
+    /**
+     * If links should be embedded.
+     * @return if these options have embedded links enabled
+     * @deprecated Naming change, now maskedLinks, {@link #isMaskedLinks()}
+     */
+    @Deprecated
+    public boolean isEmbedLinks() {
+        return maskedLinks;
+    }
+
+    /**
+     * Creates a new instance of {@link dev.vankka.mcdiscordreserializer.discord.DiscordSerializerOptions}
+     * based on this instance with embedLinks set to the provided value.
+     * @param embedLinks {@code true} to use masked links for open_url components
+     * @return the new instance
+     * @deprecated Naming change, now maskedLinks, {@link #withMaskedLinks(boolean)}
+     */
+    @Deprecated
+    public DiscordSerializerOptions withEmbedLinks(boolean embedLinks) {
+        return new DiscordSerializerOptions(embedLinks, escapeMarkdown, flattener);
     }
 
     /**
      * The {@link net.kyori.adventure.text.KeybindComponent} to {@link String} converter for these options.
      * @return the keybindProvider for these options
+     * @deprecated replaced with flattener, {@link #getFlattener()}
      */
+    @Deprecated
     public @NotNull Function<KeybindComponent, String> getKeybindProvider() {
-        return keybindProvider;
+        return component -> "";
     }
 
     /**
@@ -120,17 +150,21 @@ public final class DiscordSerializerOptions {
      * based on this instance with keybindProvider set to the provided value.
      * @param keybindProvider a function for converting {@link KeybindComponent}s to Strings for Discord
      * @return the new instance
+     * @deprecated replaced with flattener, {@link #withFlattener(net.kyori.adventure.text.flattener.ComponentFlattener)}
      */
+    @Deprecated
     public DiscordSerializerOptions withKeybindProvider(Function<KeybindComponent, String> keybindProvider) {
-        return new DiscordSerializerOptions(embedLinks, escapeMarkdown, keybindProvider, translationProvider);
+        return new DiscordSerializerOptions(maskedLinks, escapeMarkdown, flattener.toBuilder().mapper(KeybindComponent.class, keybindProvider).build());
     }
 
     /**
      * The {@link net.kyori.adventure.text.TranslatableComponent} to {@link String} converter for these options.
      * @return the keybindProvider for these options
+     * @deprecated replaced with flattener, {@link #getFlattener()}
      */
+    @Deprecated
     public @NotNull Function<TranslatableComponent, String> getTranslationProvider() {
-        return translationProvider;
+        return component -> "";
     }
 
 
@@ -139,18 +173,19 @@ public final class DiscordSerializerOptions {
      * based on this instance with translationProvider set to the provided value.
      * @param translationProvider a function for converting {@link TranslatableComponent}s to Strings for Discord
      * @return the new instance
+     * @deprecated replaced with flattener, {@link #withFlattener(net.kyori.adventure.text.flattener.ComponentFlattener)}
      */
+    @Deprecated
     public DiscordSerializerOptions withTranslationProvider(Function<TranslatableComponent, String> translationProvider) {
-        return new DiscordSerializerOptions(embedLinks, escapeMarkdown, keybindProvider, translationProvider);
+        return new DiscordSerializerOptions(maskedLinks, escapeMarkdown, flattener.toBuilder().mapper(TranslatableComponent.class, translationProvider).build());
     }
 
     @Override
     public String toString() {
         return "DiscordSerializerOptions{" +
-                "embedLinks=" + embedLinks +
+                "maskedLinks=" + maskedLinks +
                 ", escapeMarkdown=" + escapeMarkdown +
-                ", keybindProvider=" + keybindProvider +
-                ", translationProvider=" + translationProvider +
+                ", flattener=" + flattener +
                 '}';
     }
 }

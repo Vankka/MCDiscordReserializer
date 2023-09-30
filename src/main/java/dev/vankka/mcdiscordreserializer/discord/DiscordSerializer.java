@@ -18,14 +18,17 @@
 
 package dev.vankka.mcdiscordreserializer.discord;
 
-import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
+import net.kyori.adventure.text.flattener.FlattenerListener;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.ComponentEncoder;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -37,7 +40,7 @@ import java.util.function.Function;
  * @see dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules
  */
 @SuppressWarnings("unused") // API
-public class DiscordSerializer {
+public class DiscordSerializer implements ComponentEncoder<Component, String> {
 
     /**
      * Default instance of the DiscordSerializer, incase that's all you need.
@@ -97,26 +100,23 @@ public class DiscordSerializer {
      * @param component The text component from a Minecraft chat message
      * @return Discord markdown formatted String
      */
-    public String serialize(@NotNull final Component component) {
+    @Override
+    public @NotNull String serialize(@NotNull final Component component) {
         DiscordSerializerOptions options = getDefaultOptions();
         return serialize(component, options);
     }
 
-    /**
-     * Serializes Component (from a chat message) to Discord formatting (markdown).
-     *
-     * @param component         The text component from a Minecraft chat message
-     * @param serializerOptions The options to use for this serialization
-     * @return Discord markdown formatted String
-     * @see DiscordSerializerOptions#defaults()
-     * @see DiscordSerializerOptions#DiscordSerializerOptions(boolean, boolean, Function, Function)
-     */
     @NotNull
     public String serialize(@NotNull final Component component, @NotNull final DiscordSerializerOptions serializerOptions) {
+        ComponentFlattener flattener = serializerOptions.getFlattener();
+
+        FlattenListener listener = new FlattenListener(serializerOptions);
+        flattener.flatten(component, listener);
+
         StringBuilder stringBuilder = new StringBuilder();
-        List<Text> texts = getTexts(new LinkedList<>(), component, new Text(), serializerOptions);
+        List<Text> texts = listener.getTexts();
         for (Text text : texts) {
-            String content = text.getContent();
+            String content = text.getContent().toString();
             if (content.isEmpty()) {
                 // won't work
                 continue;
@@ -144,6 +144,12 @@ public class DiscordSerializer {
                         .replace("|", "\\|");
             }
 
+            String openUrl = text.getOpenUrl();
+            if (serializerOptions.isMaskedLinks() && openUrl != null) {
+                String display = text.getUrlHover();
+                content = "[" + content + "](<" + openUrl + ">" + (display != null ? " \"" + display + "\"" : "") + ")";
+            }
+
             stringBuilder.append(content);
 
             if (text.isUnderline()) {
@@ -159,98 +165,164 @@ public class DiscordSerializer {
                 stringBuilder.append("**");
             }
 
+            // Separator for formatting, since going from bold -> bold underline
+            // would lead to "**bold****__bold underline__**" which doesn't work
             stringBuilder.append("\u200B"); // zero width space
         }
         int length = stringBuilder.length();
         return length < 1 ? "" : stringBuilder.substring(0, length - 1);
     }
 
-    private LinkedList<Text> getTexts(@NotNull final List<Text> input, @NotNull final Component component,
-                                      @NotNull final Text text, @NotNull final DiscordSerializerOptions serializerOptions) {
-        LinkedList<Text> output = new LinkedList<>(input);
+    private static class FlattenListener implements FlattenerListener {
 
-        String content;
-        if (component instanceof KeybindComponent) {
-            content = serializerOptions.getKeybindProvider().apply((KeybindComponent) component);
-        } else if (component instanceof ScoreComponent) {
-            content = ((ScoreComponent) component).value();
-        } else if (component instanceof SelectorComponent) {
-            content = ((SelectorComponent) component).pattern();
-        } else if (component instanceof TextComponent) {
-            content = ((TextComponent) component).content();
-        } else if (component instanceof TranslatableComponent) {
-            content = serializerOptions.getTranslationProvider().apply(((TranslatableComponent) component));
-        } else {
-            content = "";
+        private final Map<Style, Text> previousText = new HashMap<>();
+        private final List<Text> texts = new ArrayList<>();
+        private Text currentText = null;
+
+        private final DiscordSerializerOptions serializerOptions;
+        private final boolean gatherLinks;
+
+        public FlattenListener(DiscordSerializerOptions serializerOptions) {
+            this.serializerOptions = serializerOptions;
+            this.gatherLinks = serializerOptions.isMaskedLinks();
         }
 
-        ClickEvent clickEvent = component.clickEvent();
-        if (serializerOptions.isEmbedLinks() && clickEvent != null && clickEvent.action() == ClickEvent.Action.OPEN_URL) {
-            text.setContent("[" + content + "](" + clickEvent.value() + ")");
-        } else {
-            text.setContent(content);
+        public List<Text> getTexts() {
+            if (currentText != null) {
+                texts.add(currentText);
+            }
+            return texts;
         }
 
-        TextDecoration.State bold = component.decoration(TextDecoration.BOLD);
-        if (bold != TextDecoration.State.NOT_SET) {
-            text.setBold(bold == TextDecoration.State.TRUE);
-        }
-        TextDecoration.State italic = component.decoration(TextDecoration.ITALIC);
-        if (italic != TextDecoration.State.NOT_SET) {
-            text.setItalic(italic == TextDecoration.State.TRUE);
-        }
-        TextDecoration.State underline = component.decoration(TextDecoration.UNDERLINED);
-        if (underline != TextDecoration.State.NOT_SET) {
-            text.setUnderline(underline == TextDecoration.State.TRUE);
-        }
-        TextDecoration.State strikethrough = component.decoration(TextDecoration.STRIKETHROUGH);
-        if (strikethrough != TextDecoration.State.NOT_SET) {
-            text.setStrikethrough(strikethrough == TextDecoration.State.TRUE);
-        }
+        @Override
+        public void pushStyle(@NotNull Style style) {
+            Boolean isBold = null, isItalic = null, isUnderline = null, isStrikethrough = null;
 
-        if (!output.isEmpty()) {
-            Text previous = output.getLast();
-            // if the formatting matches (color was different), merge the text objects to reduce length
-            if (text.formattingMatches(previous)) {
-                output.removeLast();
-                text.setContent(previous.getContent() + text.getContent());
+            Text text;
+            if (currentText != null) {
+                text = currentText.clone();
+                text.getContent().setLength(0);
+            } else {
+                text = new Text();
+            }
+
+            TextDecoration.State bold = style.decoration(TextDecoration.BOLD);
+            if (bold != TextDecoration.State.NOT_SET) {
+                boolean wasBold = text.isBold();
+                text.setBold(bold == TextDecoration.State.TRUE);
+            }
+
+            TextDecoration.State italic = style.decoration(TextDecoration.ITALIC);
+            if (italic != TextDecoration.State.NOT_SET) {
+                boolean wasItalic = text.isItalic();
+                text.setItalic(italic == TextDecoration.State.TRUE);
+            }
+
+            TextDecoration.State underline = style.decoration(TextDecoration.UNDERLINED);
+            if (underline != TextDecoration.State.NOT_SET) {
+                boolean wasUnderline = text.isUnderline();
+                text.setUnderline(underline == TextDecoration.State.TRUE);
+            }
+
+            TextDecoration.State strikethrough = style.decoration(TextDecoration.STRIKETHROUGH);
+            if (strikethrough != TextDecoration.State.NOT_SET) {
+                boolean wasStrikethrough = text.isStrikethrough();
+                text.setStrikethrough(strikethrough == TextDecoration.State.TRUE);
+            }
+
+            ClickEvent clickEvent = style.clickEvent();
+            if (gatherLinks && clickEvent != null && clickEvent.action() == ClickEvent.Action.OPEN_URL) {
+                text.setOpenUrl(clickEvent.value());
+            }
+
+            HoverEvent<?> hoverEvent = style.hoverEvent();
+            if (gatherLinks && hoverEvent != null && hoverEvent.action() == HoverEvent.Action.SHOW_TEXT) {
+                FlattenToTextOnly flatten = new FlattenToTextOnly();
+                serializerOptions.getFlattener().flatten((Component) hoverEvent.value(), flatten);
+                text.setUrlHover(flatten.getContent());
+            }
+
+            if (currentText == null) {
+                currentText = text;
+            } else if (!text.formattingMatches(currentText)) {
+                // If formatting is different in any way, switch to a new text part because
+                // "**bold __bold underline** underline__" does not work
+                texts.add(currentText);
+                previousText.put(style, currentText.clone());
+                currentText = text;
             }
         }
-        output.add(text);
 
-        for (Component child : component.children()) {
-            Text next = text.clone();
-            next.setContent("");
-            output = getTexts(output, child, next, serializerOptions);
+        @Override
+        public void popStyle(@NotNull Style style) {
+            Text pop = previousText.remove(style);
+            if (pop != null) {
+                texts.add(currentText);
+                currentText = pop;
+                currentText.getContent().setLength(0);
+            }
         }
 
-        return output;
+        @Override
+        public void component(@NotNull String text) {
+            if (currentText == null) {
+                currentText = new Text();
+            }
+            currentText.appendContent(text);
+        }
+    }
+
+    private static class FlattenToTextOnly implements FlattenerListener {
+
+        private final StringBuilder builder = new StringBuilder();
+
+        @Override
+        public void component(@NotNull String text) {
+            builder.append(text);
+        }
+
+        public String getContent() {
+            return builder.toString();
+        }
     }
 
     private static class Text {
 
-        private String content;
+        private final StringBuilder content = new StringBuilder();
         private boolean bold;
         private boolean strikethrough;
         private boolean underline;
         private boolean italic;
 
+        private String openUrl;
+        private String urlHover;
+
         public Text() {}
 
-        private Text(String content, boolean bold, boolean strikethrough, boolean underline, boolean italic) {
-            this.content = content;
+        private Text(
+                StringBuilder content,
+                boolean bold,
+                boolean strikethrough,
+                boolean underline,
+                boolean italic,
+                String openUrl,
+                String urlHover
+        ) {
+            this.content.append(content);
             this.bold = bold;
             this.strikethrough = strikethrough;
             this.underline = underline;
             this.italic = italic;
+            this.openUrl = openUrl;
+            this.urlHover = urlHover;
         }
 
-        public String getContent() {
+        public StringBuilder getContent() {
             return content;
         }
 
-        public void setContent(String content) {
-            this.content = content;
+        public void appendContent(String content) {
+            this.content.append(content);
         }
 
         public boolean isBold() {
@@ -285,6 +357,22 @@ public class DiscordSerializer {
             this.italic = italic;
         }
 
+        public String getOpenUrl() {
+            return openUrl;
+        }
+
+        public void setOpenUrl(String openUrl) {
+            this.openUrl = openUrl;
+        }
+
+        public String getUrlHover() {
+            return urlHover;
+        }
+
+        public void setUrlHover(String urlHover) {
+            this.urlHover = urlHover;
+        }
+
         /**
          * Checks if the formatting matches between this and another Text object.
          *
@@ -296,13 +384,15 @@ public class DiscordSerializer {
                     && bold == other.bold
                     && strikethrough == other.strikethrough
                     && underline == other.underline
-                    && italic == other.italic;
+                    && italic == other.italic
+                    && Objects.equals(openUrl, other.openUrl)
+                    && Objects.equals(urlHover, other.urlHover);
         }
 
         @SuppressWarnings("MethodDoesntCallSuperMethod")
         @Override
         public Text clone() {
-            return new Text(content, bold, strikethrough, underline, italic);
+            return new Text(content, bold, strikethrough, underline, italic, openUrl, urlHover);
         }
 
         @Override
@@ -314,12 +404,14 @@ public class DiscordSerializer {
                     && strikethrough == text.strikethrough
                     && underline == text.underline
                     && italic == text.italic
-                    && Objects.equals(content, text.content);
+                    && content.toString().contentEquals(text.content)
+                    && Objects.equals(openUrl, text.openUrl)
+                    && Objects.equals(urlHover, text.urlHover);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(content, bold, strikethrough, underline, italic);
+            return Objects.hash(content, bold, strikethrough, underline, italic, openUrl, urlHover);
         }
     }
 
