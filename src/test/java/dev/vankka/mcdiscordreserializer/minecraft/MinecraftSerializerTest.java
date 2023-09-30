@@ -30,37 +30,44 @@ public class MinecraftSerializerTest {
     @Test
     public void test() {
         Assertions.assertEquals(
-                Component.text()
-                        .append(
-                                Component.text()
-                                        .decorate(TextDecoration.UNDERLINED)
-                                        .append(
-                                                Component.text("underline").decorate(TextDecoration.UNDERLINED)
-                                        )
-                                )
-                        .build(),
+                Component.text("underline")
+                        .decorate(TextDecoration.UNDERLINED),
                 serializer.serialize("__underline__")
         );
 
-
         Assertions.assertEquals(
                 Component.text()
+                        .decorate(TextDecoration.UNDERLINED)
+                        .content("underline ")
                         .append(
                                 Component.text()
-                                        .decorate(TextDecoration.UNDERLINED)
-                                        .append(
-                                                Component.text("underline ").decorate(TextDecoration.UNDERLINED)
-                                        )
-                                        .append(
-                                                Component.text()
-                                                        .decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
-                                                        .append(
-                                                                Component.text("bold").decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
-                                                        )
-                                        )
+                                        .content("bold")
+                                        .decorate(TextDecoration.BOLD)
                         )
                         .build(),
                 serializer.serialize("__underline **bold**__")
+        );
+    }
+
+    @Test
+    public void complexTest() {
+        Assertions.assertEquals(
+                Component.text()
+                        .decorate(TextDecoration.STRIKETHROUGH)
+                        .content("strikethrough ")
+                        .append(
+                                Component.text()
+                                        .decorate(TextDecoration.UNDERLINED)
+                                        .content("strikethrough underline")
+                        )
+                        .append(Component.text(" "))
+                        .append(
+                                Component.text()
+                                        .decorate(TextDecoration.BOLD)
+                                        .content("strikethrough bold")
+                        )
+                        .build(),
+                serializer.serialize("~~strikethrough __strikethrough underline__ **strikethrough bold**~~")
         );
     }
 }

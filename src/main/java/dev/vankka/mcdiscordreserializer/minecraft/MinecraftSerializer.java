@@ -24,6 +24,7 @@ import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraft
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -119,16 +120,25 @@ public class MinecraftSerializer {
         List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
         nodes = flattenTextNodes(nodes); // reduce the amount of single character nodes caused by special characters
         for (Node<Object> node : nodes) {
-            components.add(addChild(node, Component.empty(), serializerOptions));
+            components.add(addChild(node, serializerOptions, null));
+        }
+
+        if (components.size() == 1) {
+            return components.get(0);
         }
 
         return Component.empty().children(components);
     }
 
-    private Component addChild(final Node<Object> node, final Component styleNode,
-                               final MinecraftSerializerOptions<Component> serializerOptions) {
-        Component component = Component.empty().mergeStyle(styleNode);
-        Function<Node<Object>, Component> renderWithChildren = otherNode -> addChild(otherNode, component, serializerOptions);
+    private Component addChild(
+            Node<Object> node,
+            MinecraftSerializerOptions<Component> serializerOptions,
+            Component component
+    ) {
+        if (component == null) {
+            component = Component.empty();
+        }
+        Function<Node<Object>, Component> renderWithChildren = otherNode -> addChild(otherNode, serializerOptions, null);
 
         Component output = null;
         NodeRenderer<Component> render = null;
@@ -150,8 +160,17 @@ public class MinecraftSerializer {
 
         Collection<Node<Object>> children = node.getChildren();
         if (children != null) {
+            boolean first = true;
             for (Node<Object> child : children) {
-                output = output.append(addChild(child, output, serializerOptions));
+                if (first && child instanceof TextNode) {
+                    // Apply text to the current component if it's the first child
+                    output = addChild(child, serializerOptions, output);
+                    first = false;
+                    continue;
+                }
+                first = false;
+
+                output = output.append(addChild(child, serializerOptions, null));
             }
         }
 
