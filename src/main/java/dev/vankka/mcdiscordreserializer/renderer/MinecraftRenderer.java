@@ -50,30 +50,37 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
             List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
             for (TextStyle style : styles) {
                 switch (style.getType()) {
-                    case LINK:
+                    case LINK: {
                         component = appendLink(component, style.getExtra().get("link"));
                         break;
-                    case STRIKETHROUGH:
+                    }
+                    case STRIKETHROUGH: {
                         component = strikethrough(component);
                         break;
-                    case UNDERLINE:
+                    }
+                    case UNDERLINE: {
                         component = underline(component);
                         break;
-                    case ITALICS:
+                    }
+                    case ITALICS: {
                         component = italics(component);
                         break;
-                    case BOLD:
+                    }
+                    case BOLD: {
                         component = bold(component);
                         break;
-                    case CODE_STRING:
+                    }
+                    case CODE_STRING: {
                         component = codeString(component);
                         ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
-                    case CODE_BLOCK:
+                    }
+                    case CODE_BLOCK: {
                         component = codeBlock(component);
                         ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
                         break;
-                    case QUOTE:
+                    }
+                    case QUOTE: {
                         TextComponent content = Component.empty();
                         for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
                                 new DiscordMarkdownRules.QuoteState(true),
@@ -84,8 +91,9 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
 
                         component = appendQuote(component, content);
                         break;
-                    case SPOILER:
-                        content = Component.empty();
+                    }
+                    case SPOILER: {
+                        TextComponent content = Component.empty();
                         for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
                                 null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
                             content = content.append(renderWithChildren.apply(objectNode));
@@ -93,18 +101,23 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
 
                         component = appendSpoiler(component, content);
                         break;
-                    case MENTION_EMOJI:
+                    }
+                    case MENTION_EMOJI: {
                         component = appendEmoteMention(component, style.getExtra().get("name"), style.getExtra().get("id"));
                         break;
-                    case MENTION_CHANNEL:
+                    }
+                    case MENTION_CHANNEL: {
                         component = appendChannelMention(component, style.getExtra().get("id"));
                         break;
-                    case MENTION_USER:
+                    }
+                    case MENTION_USER: {
                         component = appendUserMention(component, style.getExtra().get("id"));
                         break;
-                    case MENTION_ROLE:
+                    }
+                    case MENTION_ROLE: {
                         component = appendRoleMention(component, style.getExtra().get("id"));
                         break;
+                    }
                     default:
                         break;
                 }

@@ -141,7 +141,7 @@ public final class DiscordMarkdownRules {
                 int startIndex;
                 int endIndex;
                 String asteriskMatch = matcher.group(2);
-                boolean asterisk = asteriskMatch != null && asteriskMatch.length() > 0;
+                boolean asterisk = asteriskMatch != null && !asteriskMatch.isEmpty();
                 if (asterisk) {
                     startIndex = matcher.start(2);
                     endIndex = matcher.end(2);
