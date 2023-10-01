@@ -76,13 +76,13 @@ public class MinecraftSerializerOptions<O> {
     private final boolean debuggingEnabled;
 
     public MinecraftSerializerOptions(
-            Parser<Object, Node<Object>, Object> parser,
-            List<Rule<Object, Node<Object>, Object>> rules,
-            List<NodeRenderer<O>> renderers,
+            @NotNull Parser<Object, Node<Object>, Object> parser,
+            @Nullable List<Rule<Object, Node<Object>, Object>> rules,
+            @NotNull List<NodeRenderer<O>> renderers,
             boolean debuggingEnabled
     ) {
         this.parser = parser;
-        this.rules = Collections.unmodifiableList(rules);
+        this.rules = rules != null ? Collections.unmodifiableList(rules) : null;
         this.renderers = Collections.unmodifiableList(renderers);
         this.debuggingEnabled = debuggingEnabled;
     }

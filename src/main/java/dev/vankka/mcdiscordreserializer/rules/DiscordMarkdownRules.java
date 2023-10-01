@@ -18,9 +18,7 @@
 
 package dev.vankka.mcdiscordreserializer.rules;
 
-import dev.vankka.simpleast.core.TextStyle;
 import dev.vankka.simpleast.core.node.Node;
-import dev.vankka.simpleast.core.node.StyleNode;
 import dev.vankka.simpleast.core.node.TextNode;
 import dev.vankka.simpleast.core.parser.ParseSpec;
 import dev.vankka.simpleast.core.parser.Parser;
@@ -69,6 +67,10 @@ public final class DiscordMarkdownRules {
     private static final Pattern PATTERN_TEXT = Pattern.compile("^[\\s\\S]+?(?=[^0-9A-Za-z\\s\\u00c0-\\uffff>]|\\n| {2,}\\n|\\w+:\\S|$)");
     private static final Pattern PATTERN_LINK = Pattern.compile("^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]+\\.[-a-zA-Z0-9+&@#/%=~_|]+)");
 
+    private static <R> StyleNode<R, StyleNode.Style> styleNode(StyleNode.Style style) {
+        return new StyleNode<>(new ArrayList<>(Collections.singletonList(style)));
+    }
+
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's emote mentions.
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
@@ -77,12 +79,10 @@ public final class DiscordMarkdownRules {
         return new Rule<R, Node<R>, S>(PATTERN_EMOTE_MENTION) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                Map<String, String> extra = new HashMap<>();
-                extra.put("name", matcher.group(1));
-                extra.put("id", matcher.group(2));
+                String name = matcher.group(1);
+                String id = matcher.group(2);
 
-                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(
-                        Collections.singletonList(new TextStyle(TextStyle.Type.MENTION_EMOJI, extra)))), state);
+                return ParseSpec.createTerminal(styleNode(new StyleNode.EmojiStyle(id, name)), state);
             }
         };
     }
@@ -92,16 +92,15 @@ public final class DiscordMarkdownRules {
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createChannelMentionRule() {
-        return createSimpleMentionRule(PATTERN_CHANNEL_MENTION, TextStyle.Type.MENTION_CHANNEL);
+        return createSimpleMentionRule(PATTERN_CHANNEL_MENTION, StyleNode.MentionStyle.Type.CHANNEL);
     }
-
 
     /**
      * Creates a {@link dev.vankka.simpleast.core.parser.Rule} for Discord's user mentions.
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createUserMentionRule() {
-        return createSimpleMentionRule(PATTERN_USER_MENTION, TextStyle.Type.MENTION_USER);
+        return createSimpleMentionRule(PATTERN_USER_MENTION, StyleNode.MentionStyle.Type.USER);
     }
 
 
@@ -110,7 +109,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://discord.com/developers/docs/reference#message-formatting">Discord developer docs</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createRoleMentionRule() {
-        return createSimpleMentionRule(PATTERN_ROLE_MENTION, TextStyle.Type.MENTION_ROLE);
+        return createSimpleMentionRule(PATTERN_ROLE_MENTION, StyleNode.MentionStyle.Type.ROLE);
     }
 
     /**
@@ -118,7 +117,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createBoldRule() {
-        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_BOLD, new TextStyle(TextStyle.Type.BOLD));
+        return createSimpleStyleRule(PATTERN_BOLD, StyleNode.Styles.BOLD);
     }
 
     /**
@@ -126,7 +125,17 @@ public final class DiscordMarkdownRules {
      * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createUnderlineRule() {
-        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_UNDERLINE, new TextStyle(TextStyle.Type.UNDERLINE));
+        return createSimpleStyleRule(PATTERN_UNDERLINE, StyleNode.Styles.UNDERLINE);
+    }
+
+    public static <R, S> Rule<R, Node<R>, S> createSimpleStyleRule(Pattern pattern, StyleNode.Style style) {
+        return new Rule<R, Node<R>, S>(pattern) {
+
+            @Override
+            public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
+                return ParseSpec.createNonterminal(styleNode(style), state, matcher.start(1), matcher.end(1));
+            }
+        };
     }
 
     /**
@@ -150,11 +159,8 @@ public final class DiscordMarkdownRules {
                     endIndex = matcher.end(1);
                 }
 
-                Map<String, String> extra = new HashMap<>();
-                extra.put("asterisk", String.valueOf(asterisk));
-
-                List<TextStyle> styles = new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.ITALICS, extra)));
-                return ParseSpec.createNonterminal(new StyleNode<>(styles), state, startIndex, endIndex);
+                StyleNode.ItalicStyle style = new StyleNode.ItalicStyle(asterisk);
+                return ParseSpec.createNonterminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(style))), state, startIndex, endIndex);
             }
         };
     }
@@ -164,7 +170,7 @@ public final class DiscordMarkdownRules {
      * <a href="https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-">Discord blog</a>
      */
     public static <R, S> Rule<R, Node<R>, S> createStrikethruRule() {
-        return SimpleMarkdownRules.createSimpleStyleRule(PATTERN_STRIKETHRU, new TextStyle(TextStyle.Type.STRIKETHROUGH));
+        return createSimpleStyleRule(PATTERN_STRIKETHRU, StyleNode.Styles.STRIKETHROUGH);
     }
 
     /**
@@ -175,10 +181,9 @@ public final class DiscordMarkdownRules {
         return new Rule<R, Node<R>, S>(PATTERN_SPOILER) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                Map<String, String> extra = new HashMap<>();
-                extra.put("content", matcher.group(1));
+                String content = matcher.group(1);
 
-                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.SPOILER, extra)))), state);
+                return ParseSpec.createTerminal(styleNode(new StyleNode.ContentStyle(StyleNode.ContentStyle.Type.SPOILER, content)), state);
             }
         };
     }
@@ -192,21 +197,23 @@ public final class DiscordMarkdownRules {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
                 String content = matcher.group();
-                return ParseSpec.createTerminal(StyleNode.Companion.createWithText(content.substring(1, content.length() - 1),
-                        new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.CODE_STRING)))), state);
+                return ParseSpec.createTerminal(
+                        StyleNode.createWithText(content.substring(1, content.length() - 1),
+                        new ArrayList<>(Collections.singletonList(StyleNode.Styles.CODE_STRING))),
+                        state
+                );
             }
         };
     }
 
-    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, TextStyle.Type styleType) {
+    private static <R, S> Rule<R, Node<R>, S> createSimpleMentionRule(Pattern pattern, StyleNode.MentionStyle.Type style) {
         return new Rule<R, Node<R>, S>(pattern) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                Map<String, String> extra = new HashMap<>();
-                extra.put("id", matcher.group(1));
-                TextStyle textStyle = new TextStyle(styleType, extra);
+                String id = matcher.group(1);
+                StyleNode.MentionStyle mentionStyle = new StyleNode.MentionStyle(style, id);
 
-                return ParseSpec.createTerminal(new StyleNode<>(new ArrayList<>(Collections.singletonList(textStyle))), state);
+                return ParseSpec.createTerminal(styleNode(mentionStyle), state);
             }
         };
     }
@@ -232,12 +239,14 @@ public final class DiscordMarkdownRules {
             @Override
             public ParseSpec<R, Node<R>, Object> parse(Matcher matcher, Parser parser, Object state) {
                 Object newState = state instanceof QuoteState ? ((QuoteState) state).newQuoteState(true) : new QuoteState(true);
+                String content = matcher.group(1).trim().replace("\n> ", "\n");
 
-                Map<String, String> extra = new HashMap<>();
-                extra.put("content", matcher.group(1).trim().replace("\n> ", "\n"));
-
-                return ParseSpec.createNonterminal(new StyleNode<>(Collections.singletonList(new TextStyle(TextStyle.Type.QUOTE, extra))),
-                        newState, matcher.start(1), matcher.end(1));
+                return ParseSpec.createNonterminal(
+                        styleNode(new StyleNode.ContentStyle(StyleNode.ContentStyle.Type.QUOTE, content)),
+                        newState,
+                        matcher.start(1),
+                        matcher.end(1)
+                );
             }
         };
     }
@@ -250,11 +259,14 @@ public final class DiscordMarkdownRules {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_BLOCK) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                Map<String, String> extra = new HashMap<>();
-                extra.put("language", matcher.group(1));
-
-                return ParseSpec.createTerminal(StyleNode.Companion.createWithText(matcher.group(2),
-                        new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.CODE_BLOCK, extra)))), state);
+                String language = matcher.group(1);
+                return ParseSpec.createTerminal(
+                        StyleNode.createWithText(
+                                matcher.group(2),
+                                new ArrayList<>(Collections.singletonList(new StyleNode.CodeBlockStyle(language)))
+                        ),
+                        state
+                );
             }
         };
     }
@@ -282,11 +294,9 @@ public final class DiscordMarkdownRules {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
                 String link = matcher.group(1);
-                Map<String, String> extra = new HashMap<>();
-                extra.put("link", link);
 
-                return ParseSpec.createTerminal(new StyleNode<>(
-                        new ArrayList<>(Collections.singletonList(new TextStyle(TextStyle.Type.LINK, extra)))),
+                return ParseSpec.createTerminal(
+                        styleNode(new StyleNode.ContentStyle(StyleNode.ContentStyle.Type.LINK, link)),
                         state
                 );
             }

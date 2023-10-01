@@ -24,7 +24,6 @@ import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraft
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.Style;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

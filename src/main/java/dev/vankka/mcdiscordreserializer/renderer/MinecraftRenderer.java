@@ -20,9 +20,8 @@ package dev.vankka.mcdiscordreserializer.renderer;
 
 import dev.vankka.mcdiscordreserializer.minecraft.MinecraftSerializerOptions;
 import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
-import dev.vankka.simpleast.core.TextStyle;
+import dev.vankka.mcdiscordreserializer.rules.StyleNode;
 import dev.vankka.simpleast.core.node.Node;
-import dev.vankka.simpleast.core.node.StyleNode;
 import dev.vankka.simpleast.core.node.TextNode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -47,79 +46,92 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
         if (node instanceof TextNode) {
             component = ((TextComponent) component).content(((TextNode<?>) node).getContent());
         } else if (node instanceof StyleNode) {
-            List<TextStyle> styles = new ArrayList<>(((StyleNode<?, TextStyle>) node).getStyles());
-            for (TextStyle style : styles) {
-                switch (style.getType()) {
-                    case LINK: {
-                        component = appendLink(component, style.getExtra().get("link"));
-                        break;
-                    }
-                    case STRIKETHROUGH: {
-                        component = strikethrough(component);
-                        break;
-                    }
-                    case UNDERLINE: {
-                        component = underline(component);
-                        break;
-                    }
-                    case ITALICS: {
-                        component = italics(component);
-                        break;
-                    }
-                    case BOLD: {
-                        component = bold(component);
-                        break;
-                    }
-                    case CODE_STRING: {
-                        component = codeString(component);
-                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
-                        break;
-                    }
-                    case CODE_BLOCK: {
-                        component = codeBlock(component);
-                        ((StyleNode<?, TextStyle>) node).getStyles().remove(style);
-                        break;
-                    }
-                    case QUOTE: {
-                        TextComponent content = Component.empty();
-                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
-                                new DiscordMarkdownRules.QuoteState(true),
-                                serializerOptions.getRules(),
-                                serializerOptions.isDebuggingEnabled())) {
-                            content = content.append(renderWithChildren.apply(objectNode));
+            List<StyleNode.Style> styles = new ArrayList<>(((StyleNode<?, StyleNode.Style>) node).getStyles());
+            for (StyleNode.Style style : styles) {
+                if (style instanceof StyleNode.MentionStyle) {
+                    StyleNode.MentionStyle mentionStyle = (StyleNode.MentionStyle) style;
+                    String id = mentionStyle.getId();
+                    switch (mentionStyle.getType()) {
+                        case ROLE: {
+                            component = appendRoleMention(component, id);
+                            break;
                         }
-
-                        component = appendQuote(component, content);
-                        break;
-                    }
-                    case SPOILER: {
-                        TextComponent content = Component.empty();
-                        for (Node<Object> objectNode : serializerOptions.getParser().parse(style.getExtra().get("content"),
-                                null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled())) {
-                            content = content.append(renderWithChildren.apply(objectNode));
+                        case USER: {
+                            component = appendUserMention(component, id);
+                            break;
                         }
+                        case CHANNEL: {
+                            component = appendChannelMention(component, id);
+                            break;
+                        }
+                    }
+                } else if (style instanceof StyleNode.EmojiStyle) {
+                    StyleNode.EmojiStyle emojiStyle = (StyleNode.EmojiStyle) style;
+                    component = appendEmoteMention(component, emojiStyle.getId(), emojiStyle.getName());
+                } else if (style instanceof StyleNode.CodeBlockStyle) {
+                    StyleNode.CodeBlockStyle codeBlockStyle = (StyleNode.CodeBlockStyle) style;
+                    component = codeBlock(component, codeBlockStyle.getLanguage());
+                    ((StyleNode<?, StyleNode.Style>) node).getStyles().remove(style);
+                } else if (style instanceof StyleNode.ContentStyle) {
+                    StyleNode.ContentStyle contentStyle = (StyleNode.ContentStyle) style;
+                    switch (contentStyle.getType()) {
+                        case LINK: {
+                            component = appendLink(component, contentStyle.getContent());
+                            break;
+                        }
+                        case QUOTE: {
+                            TextComponent content = Component.empty();
+                            List<Node<Object>> nodes = serializerOptions.getParser().parse(
+                                    contentStyle.getContent(),
+                                    new DiscordMarkdownRules.QuoteState(true),
+                                    serializerOptions.getRules(),
+                                    serializerOptions.isDebuggingEnabled()
+                            );
+                            for (Node<Object> objectNode : nodes) {
+                                content = content.append(renderWithChildren.apply(objectNode));
+                            }
 
-                        component = appendSpoiler(component, content);
-                        break;
+                            component = appendQuote(component, content);
+                            break;
+                        }
+                        case SPOILER: {
+                            TextComponent content = Component.empty();
+                            List<Node<Object>> nodes = serializerOptions.getParser().parse(
+                                    contentStyle.getContent(),
+                                    null,
+                                    serializerOptions.getRules(),
+                                    serializerOptions.isDebuggingEnabled()
+                            );
+                            for (Node<Object> objectNode : nodes) {
+                                content = content.append(renderWithChildren.apply(objectNode));
+                            }
+
+                            component = appendSpoiler(component, content);
+                            break;
+                        }
                     }
-                    case MENTION_EMOJI: {
-                        component = appendEmoteMention(component, style.getExtra().get("name"), style.getExtra().get("id"));
-                        break;
+                } else if (style instanceof StyleNode.ItalicStyle) {
+                    component = italics(component);
+                } else if (style instanceof StyleNode.Styles) {
+                    switch ((StyleNode.Styles) style) {
+                        case CODE_STRING: {
+                            component = codeString(component);
+                            ((StyleNode<?, StyleNode.Style>) node).getStyles().remove(style);
+                            break;
+                        }
+                        case BOLD: {
+                            component = bold(component);
+                            break;
+                        }
+                        case UNDERLINE: {
+                            component = underline(component);
+                            break;
+                        }
+                        case STRIKETHROUGH: {
+                            component = strikethrough(component);
+                            break;
+                        }
                     }
-                    case MENTION_CHANNEL: {
-                        component = appendChannelMention(component, style.getExtra().get("id"));
-                        break;
-                    }
-                    case MENTION_USER: {
-                        component = appendUserMention(component, style.getExtra().get("id"));
-                        break;
-                    }
-                    case MENTION_ROLE: {
-                        component = appendRoleMention(component, style.getExtra().get("id"));
-                        break;
-                    }
-                    default:
-                        break;
                 }
                 if (component == null) {
                     break;
@@ -205,7 +217,20 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
      * Renders the provided {@link Component} as a code block.
      *
      * @param part the {@link Component} to render as a code block
+     * @param language the language of the code block
      * @return the code blocked {@link Component} or {@code null} if this renderer does not process that kind of style
+     */
+    @Nullable
+    default Component codeBlock(@NotNull Component part, @Nullable String language) {
+        return codeBlock(part);
+    }
+
+    /**
+     * Renders the provided {@link Component} as a code block. Will not be executed if {@link #codeBlock(net.kyori.adventure.text.Component, String)} if is overridden.
+     *
+     * @param part the {@link Component} to render as a code block
+     * @return the code blocked {@link Component} or {@code null} if this renderer does not process that kind of style
+     * @see #codeBlock(net.kyori.adventure.text.Component, String)
      */
     @Nullable
     Component codeBlock(@NotNull Component part);
