@@ -67,7 +67,7 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
                     }
                 } else if (style instanceof StyleNode.EmojiStyle) {
                     StyleNode.EmojiStyle emojiStyle = (StyleNode.EmojiStyle) style;
-                    component = appendEmoteMention(component, emojiStyle.getId(), emojiStyle.getName());
+                    component = appendEmoteMention(component, emojiStyle.getName(), emojiStyle.getId());
                 } else if (style instanceof StyleNode.CodeBlockStyle) {
                     StyleNode.CodeBlockStyle codeBlockStyle = (StyleNode.CodeBlockStyle) style;
                     component = codeBlock(component, codeBlockStyle.getLanguage());
