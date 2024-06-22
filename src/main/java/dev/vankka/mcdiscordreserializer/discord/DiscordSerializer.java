@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 /**
  * DiscordSerializer, for serializing from Minecraft {@link Component}s to Discord messages.
@@ -41,6 +42,8 @@ import java.util.function.Function;
  */
 @SuppressWarnings("unused") // API
 public class DiscordSerializer implements ComponentEncoder<Component, String> {
+
+    private static final Pattern LINK_PATTERN = Pattern.compile("(https?://.*\\.[^ ]*)$");
 
     /**
      * Default instance of the DiscordSerializer, incase that's all you need.
@@ -135,7 +138,8 @@ public class DiscordSerializer implements ComponentEncoder<Component, String> {
                 stringBuilder.append("__");
             }
 
-            if (serializerOptions.isEscapeMarkdown()) {
+            // Markdown doesn't apply inside links
+            if (serializerOptions.isEscapeMarkdown() && !LINK_PATTERN.matcher(stringBuilder).find()) {
                 content = content
                         .replace("*", "\\*")
                         .replace("~", "\\~")
