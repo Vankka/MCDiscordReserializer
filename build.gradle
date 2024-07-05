@@ -1,13 +1,17 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
-    id 'org.cadixdev.licenser' version '0.6.0'
+    id 'net.kyori.indra.licenser.spotless' version '2.2.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'java'
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 group 'dev.vankka'
 version '4.4.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -19,34 +23,20 @@ repositories {
     }
 }
 
-javadoc {
-    options.memberLevel = JavadocMemberLevel.PUBLIC
-    options.author()
-    options.encoding = 'UTF-8'
-    options.addBooleanOption('html5', true)
-    options.addBooleanOption('Xdoclint:none', true)
-    failOnError = false
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 test {
-    reports {
-        junitXml.enabled = false
-        html.enabled = true
-    }
-    ignoreFailures = true
-    subprojects.each { dependsOn(it.path + ':test') }
     useJUnitPlatform()
 }
 
-license {
-    header = rootProject.file('buildscript/LICENSE_HEADER')
-    properties {
-        String inception = '2018'
-        String currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
-        year = inception == currentYear ? currentYear : inception + '-' + currentYear
-    }
-    include '**/*.java' // only java files
+indraSpotlessLicenser {
+    licenseHeaderFile(rootProject.file('buildscript/LICENSE_HEADER'))
+    newLine(true)
+    property('inception', '2021')
+    property('year_now', String.valueOf(Calendar.getInstance().get(Calendar.YEAR)))
 }
 
 dependencies {
@@ -59,84 +49,63 @@ dependencies {
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.9.2')
 }
 
-jar {
-    dependsOn licenseFormat
-    finalizedBy shadowJar
-}
-
-shadowJar {
-    configurations = [project.configurations.runtimeClasspath]
-    classifier 'shaded'
-}
-
 java {
     withJavadocJar()
     withSourcesJar()
 }
 
-if (System.getenv('SONATYPE_KEY') == null && !project.hasProperty("signing.keyId")) {
-    // Don't even bother with signing/publishing if neither of these are set
-    return
-}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
 
-task publishProject {
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
+            pom {
+                name = project.name
+                packaging = 'jar'
+                description = 'A library for transcoding between Minecraft and Discord. '
+                url = 'https://github.com/Vankka/MCDiscordReserializer'
 
-    dependsOn tasks.build
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from components.java
-
-                pom {
-                    name = project.name
-                    packaging = 'jar'
-                    description = 'A library for transcoding between Minecraft and Discord. '
+                scm {
+                    connection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
+                    developerConnection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
                     url = 'https://github.com/Vankka/MCDiscordReserializer'
+                }
 
-                    scm {
-                        connection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
-                        developerConnection = 'scm:git:https://github.com/Vankka/MCDiscordReserializer.git'
-                        url = 'https://github.com/Vankka/MCDiscordReserializer'
-                    }
-
-                    licenses {
-                        license {
-                            name = 'GNU General Public License, Version 3.0'
-                            url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = 'Vankka'
-                        }
+                licenses {
+                    license {
+                        name = 'GNU General Public License, Version 3.0'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
                     }
                 }
-            }
-        }
 
-        signing {
-            sign publishing.publications.maven
-
-            def key = System.getenv('SONATYPE_KEY')
-            if (key != null) {
-                useInMemoryPgpKeys(key, System.getenv('SONATYPE_KEY_PASS'))
-            }
-        }
-
-        repositories {
-            maven {
-                credentials {
-                    username findProperty('ossrhUsername')
-                    password findProperty('ossrhPassword')
+                developers {
+                    developer {
+                        id = 'Vankka'
+                    }
                 }
-                url version.endsWith('-SNAPSHOT') ? 'https://s01.oss.sonatype.org/content/repositories/snapshots/' : 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
             }
         }
     }
-
-    finalizedBy publish
 }
+
+if (System.getenv('SIGNING_KEY') != null || project.hasProperty("signing.keyId")) {
+    signing {
+        sign publishing.publications.maven
+
+        def key = System.getenv('SIGNING_KEY')
+        if (key != null) {
+            useInMemoryPgpKeys(key, System.getenv('SIGNING_KEY_PASS'))
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://s01.oss.sonatype.org/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://s01.oss.sonatype.org/content/repositories/snapshots/'))
+            packageGroup = rootProject.group
+        }
+    }
+}
+
