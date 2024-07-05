@@ -1,6 +1,5 @@
 # MCDiscordReserializer 
-![Build](https://github.com/Vankka/MCDiscordReserializer/workflows/Build/badge.svg) 
-![Deploy](https://github.com/Vankka/MCDiscordReserializer/workflows/Deploy/badge.svg)
+
 [![Maven Central](https://img.shields.io/maven-central/v/dev.vankka/mcdiscordreserializer?label=release)](https://central.sonatype.com/search?q=g%3Adev.vankka+a%3Amcdiscordreserializer)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/dev.vankka/mcdiscordreserializer?label=dev&server=https%3A%2F%2Fs01.oss.sonatype.org)](https://s01.oss.sonatype.org/#view-repositories;snapshots~browsestorage~dev/vankka)
 
