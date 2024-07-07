@@ -10,8 +10,8 @@ plugins {
 group 'dev.vankka'
 version '4.4.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatability = JavaVersion.VERSION_1_8
+targetCompatability = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
