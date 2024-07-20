@@ -35,6 +35,9 @@ import java.util.List;
 /**
  * Options for {@link MinecraftSerializer}s.
  * @param <O> the type of the result produced with the renderers
+ * @see dev.vankka.mcdiscordreserializer.renderer.MinecraftNodeRenderer
+ * @see dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer
+ * @see dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules
  */
 public class MinecraftSerializerOptions<O> {
 

@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
  * @author Vankka
  *
  * @see DiscordSerializerOptions
- * @see dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules
  */
 @SuppressWarnings("unused") // API
 public class DiscordSerializer implements ComponentEncoder<Component, String> {

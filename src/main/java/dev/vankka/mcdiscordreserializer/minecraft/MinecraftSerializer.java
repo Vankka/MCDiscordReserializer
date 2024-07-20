@@ -18,7 +18,6 @@
 
 package dev.vankka.mcdiscordreserializer.minecraft;
 
-import dev.vankka.mcdiscordreserializer.renderer.MinecraftRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
@@ -37,7 +36,6 @@ import java.util.function.Function;
  * @author Vankka
  *
  * @see MinecraftSerializerOptions
- * @see MinecraftRenderer
  */
 @SuppressWarnings("unused") // API
 public class MinecraftSerializer {
