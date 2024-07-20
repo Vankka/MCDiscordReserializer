@@ -45,7 +45,7 @@ public final class DiscordMarkdownRules {
     private static final Pattern PATTERN_UNDERLINE = Pattern.compile("^__(.+?)__(?!_)");
     private static final Pattern PATTERN_STRIKETHRU = Pattern.compile("^~~(.+?)~~");
     private static final Pattern PATTERN_SPOILER = Pattern.compile("^\\|\\|(.+?)\\|\\|");
-    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^`(.+?)`");
+    private static final Pattern PATTERN_CODE_STRING = Pattern.compile("^(?:`{2}(.+?)`{2}|`(.+?)`)");
     private static final Pattern PATTERN_QUOTE = Pattern.compile("^> (.+(?:\\n> .+)*)", Pattern.DOTALL);
     private static final Pattern PATTERN_CODE_BLOCK = Pattern.compile("^```(?:(\\S+?)\\n)?\\n*(.+?)\\n*```");
 
@@ -196,10 +196,15 @@ public final class DiscordMarkdownRules {
         return new Rule<R, Node<R>, S>(PATTERN_CODE_STRING) {
             @Override
             public ParseSpec<R, Node<R>, S> parse(Matcher matcher, Parser<R, Node<R>, S> parser, S state) {
-                String content = matcher.group();
+                String content = matcher.group(1);
+                if (content == null) {
+                    content = matcher.group(2);
+                }
                 return ParseSpec.createTerminal(
-                        StyleNode.createWithText(content.substring(1, content.length() - 1),
-                        new ArrayList<>(Collections.singletonList(StyleNode.Styles.CODE_STRING))),
+                        StyleNode.createWithText(
+                                content,
+                                new ArrayList<>(Collections.singletonList(StyleNode.Styles.CODE_STRING))
+                        ),
                         state
                 );
             }
