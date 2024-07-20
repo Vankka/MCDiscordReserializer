@@ -65,7 +65,7 @@ public final class DiscordMarkdownRules {
 
     // patched version of SimpleMarkdownRules.createText for quotes
     private static final Pattern PATTERN_TEXT = Pattern.compile("^[\\s\\S]+?(?=[^0-9A-Za-z\\s\\u00c0-\\uffff>]|\\n| {2,}\\n|\\w+:\\S|$)");
-    private static final Pattern PATTERN_LINK = Pattern.compile("^(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]+\\.[-a-zA-Z0-9+&@#/%=~_|]+)");
+    private static final Pattern PATTERN_LINK = Pattern.compile("^(https?://[^ ]+\\.[^ ]+)");
 
     private static <R> StyleNode<R, StyleNode.Style> styleNode(StyleNode.Style style) {
         return new StyleNode<>(new ArrayList<>(Collections.singletonList(style)));
