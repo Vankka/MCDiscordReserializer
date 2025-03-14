@@ -23,6 +23,7 @@ import dev.vankka.mcdiscordreserializer.rules.DiscordMarkdownRules;
 import dev.vankka.mcdiscordreserializer.rules.StyleNode;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
+import dev.vankka.simpleast.core.parser.Parser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.NotNull;
@@ -81,12 +82,17 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
                         }
                         case QUOTE: {
                             TextComponent content = Component.empty();
-                            List<Node<Object>> nodes = serializerOptions.getParser().parse(
-                                    contentStyle.getContent(),
-                                    new DiscordMarkdownRules.QuoteState(true),
-                                    serializerOptions.getRules(),
-                                    serializerOptions.isDebuggingEnabled()
-                            );
+
+                            Parser<Object, Node<Object>, Object> parser = serializerOptions.getParser();
+                            List<Node<Object>> nodes;
+                            synchronized (parser) {
+                                nodes = parser.parse(
+                                        contentStyle.getContent(),
+                                        new DiscordMarkdownRules.QuoteState(true),
+                                        serializerOptions.getRules(),
+                                        serializerOptions.isDebuggingEnabled()
+                                );
+                            }
                             for (Node<Object> objectNode : nodes) {
                                 content = content.append(renderWithChildren.apply(objectNode));
                             }
@@ -96,12 +102,17 @@ public interface MinecraftRenderer extends MinecraftNodeRenderer {
                         }
                         case SPOILER: {
                             TextComponent content = Component.empty();
-                            List<Node<Object>> nodes = serializerOptions.getParser().parse(
-                                    contentStyle.getContent(),
-                                    null,
-                                    serializerOptions.getRules(),
-                                    serializerOptions.isDebuggingEnabled()
-                            );
+
+                            Parser<Object, Node<Object>, Object> parser = serializerOptions.getParser();
+                            List<Node<Object>> nodes;
+                            synchronized (parser) {
+                                nodes = parser.parse(
+                                        contentStyle.getContent(),
+                                        null,
+                                        serializerOptions.getRules(),
+                                        serializerOptions.isDebuggingEnabled()
+                                );
+                            }
                             for (Node<Object> objectNode : nodes) {
                                 content = content.append(renderWithChildren.apply(objectNode));
                             }

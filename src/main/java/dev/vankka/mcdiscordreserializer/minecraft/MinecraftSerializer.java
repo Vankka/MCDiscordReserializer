@@ -22,6 +22,7 @@ import dev.vankka.mcdiscordreserializer.renderer.NodeRenderer;
 import dev.vankka.mcdiscordreserializer.renderer.implementation.DefaultMinecraftRenderer;
 import dev.vankka.simpleast.core.node.Node;
 import dev.vankka.simpleast.core.node.TextNode;
+import dev.vankka.simpleast.core.parser.Parser;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -114,7 +115,11 @@ public class MinecraftSerializer {
     public Component serialize(@NotNull final String discordMessage, @NotNull final MinecraftSerializerOptions<Component> serializerOptions) {
         List<Component> components = new ArrayList<>();
 
-        List<Node<Object>> nodes = serializerOptions.getParser().parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
+        Parser<Object, Node<Object>, Object> parser = serializerOptions.getParser();
+        List<Node<Object>> nodes;
+        synchronized (parser) {
+            nodes = parser.parse(discordMessage, null, serializerOptions.getRules(), serializerOptions.isDebuggingEnabled());
+        }
         nodes = flattenTextNodes(nodes); // reduce the amount of single character nodes caused by special characters
         for (Node<Object> node : nodes) {
             components.add(addChild(node, serializerOptions, null));
