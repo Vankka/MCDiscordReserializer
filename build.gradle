@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'dev.vankka'
-version '4.4.1-SNAPSHOT'
+version '5.0.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -21,8 +21,8 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
     withJavadocJar()
 }
@@ -39,8 +39,8 @@ indraSpotlessLicenser {
 }
 
 dependencies {
-    api group: 'net.kyori', name: 'adventure-api', version: '4.14.0'
-    api group: 'dev.vankka', name: 'SimpleAST', version: '2.2.8'
+    api 'net.kyori:adventure-api:5.2.0'
+    api 'dev.vankka:SimpleAST:2.2.8'
     compileOnlyApi 'org.jetbrains:annotations:23.0.0'
 
     // Test

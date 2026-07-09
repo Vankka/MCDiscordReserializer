@@ -5,7 +5,7 @@
 
 A library for transcoding between Minecraft and Discord.
 
-Minecraft text is represented using [Kyori's Adventure](https://github.com/KyoriPowered/adventure) (compatible with 4.x.x).
+Minecraft text is represented using [Kyori's Adventure](https://github.com/KyoriPowered/adventure).
 
 Discord text is represented using Java Strings (not relying on any specific Discord library) 
 and is translated using a fork of [Discord's SimpleAST](https://github.com/discordapp/SimpleAST), 
@@ -16,7 +16,8 @@ and is translated using a fork of [Discord's SimpleAST](https://github.com/disco
 ### Version
 | Adventure Version | MCDiscordReserializer version | Maintained |
 |-------------------|-------------------------------|------------|
-| 4.x.x             | 4.x.x                         | ✔          |
+| 5.x.x             | 5.x.x                         | ✔          |
+| 4.x.x             | 4.x.x                         | ✖️         |
 
 #### Maven
 ```xml

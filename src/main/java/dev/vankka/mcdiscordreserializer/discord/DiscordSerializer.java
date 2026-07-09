@@ -242,9 +242,9 @@ public class DiscordSerializer implements ComponentEncoder<Component, String> {
                 text.setStrikethrough(strikethrough == TextDecoration.State.TRUE);
             }
 
-            ClickEvent clickEvent = style.clickEvent();
-            if (gatherLinks && clickEvent != null && clickEvent.action() == ClickEvent.Action.OPEN_URL) {
-                text.setOpenUrl(clickEvent.value());
+            ClickEvent<?> clickEvent = style.clickEvent();
+            if (gatherLinks && clickEvent != null && clickEvent.payload() instanceof ClickEvent.Payload.Text textPayload) {
+                text.setOpenUrl(textPayload.value());
             }
 
             HoverEvent<?> hoverEvent = style.hoverEvent();
